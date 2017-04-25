@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BottomItem">
+        <attr name="icon" format="reference"></attr>
+        <attr name="tips_text" format="string"></attr>
+        <attr name="tips_text_size" format="integer|reference"></attr>
+        <attr name="icon_height" format="dimension|reference"></attr>
+        <attr name="icon_width" format="dimension|reference"></attr>
+        <attr name="margin_top" format="dimension|reference"></attr>
+        <attr name="margin_bottom" format="dimension|reference"></attr>
+        <attr name="item_color" format="color|reference"></attr>
+        <attr name="tips_text_margin_bottom" format="dimension|reference"></attr>
+    </declare-styleable>
+</resources>
