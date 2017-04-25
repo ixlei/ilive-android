@@ -3,6 +3,10 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
+    sourceSets {
+        main.jni.srcDirs = []
+        main.jniLibs.srcDirs = ['src/main/libs']
+    }
     defaultConfig {
         applicationId "com.example.yuchen.ilive.android"
         minSdkVersion 15
@@ -10,6 +14,15 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilter "armeabi"
+            ldLibs "log", "z", "m", "jnigraphics", "android"    //这里可以设置ldLibs选项，比如你想调试jni的时候必须添加"log"参数
+        }
+    }
+    externalNativeBuild {
+        ndkBuild {
+            path 'src/main/jni/Android.mk'
+        }
     }
     buildTypes {
         release {
@@ -19,6 +32,12 @@ android {
     }
 }
 
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -27,4 +46,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha9'
     testCompile 'junit:junit:4.12'
+    compile 'com.android.volley:volley:1.0.0'
 }
