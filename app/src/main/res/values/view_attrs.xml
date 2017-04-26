@@ -10,5 +10,6 @@
         <attr name="margin_bottom" format="dimension|reference"></attr>
         <attr name="item_color" format="color|reference"></attr>
         <attr name="tips_text_margin_bottom" format="dimension|reference"></attr>
+        <attr name="active_icon" format="reference"></attr>
     </declare-styleable>
 </resources>

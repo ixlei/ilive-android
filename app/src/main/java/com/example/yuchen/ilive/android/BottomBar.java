@@ -30,6 +30,7 @@ public class BottomBar extends LinearLayout implements View.OnClickListener{
     private View itemView;
 
     private Drawable icon;
+    private Drawable hotIcon;
     private String tipsText;
     private float tipsTextSize;
     private float iconHeight;
@@ -56,6 +57,7 @@ public class BottomBar extends LinearLayout implements View.OnClickListener{
         super(context, attrs);
         this.context = context;
         TypedArray typedArr = context.obtainStyledAttributes(attrs, R.styleable.BottomItem);
+        hotIcon = typedArr.getDrawable(R.styleable.BottomItem_active_icon);
         icon = typedArr.getDrawable(R.styleable.BottomItem_icon);
         tipsText = typedArr.getString(R.styleable.BottomItem_tips_text);
         itemColor = typedArr.getColor(R.styleable.BottomItem_item_color, 0xff333333);
@@ -66,7 +68,7 @@ public class BottomBar extends LinearLayout implements View.OnClickListener{
         marginTop = typedArr.getDimension(R.styleable.BottomItem_margin_top, MARGIN_TOP);
         marginBottom = typedArr.getDimension(R.styleable.BottomItem_margin_bottom, MARGIN_BOTTOM);
         tipsTextMarginBottom = typedArr.getDimension(R.styleable.BottomItem_tips_text_margin_bottom, TIPS_TEXT_MARGIN_BOTTOM);
-                percentWidth = AutoUtils.getPercentWidthSize((int) percentWidth);
+        percentWidth = AutoUtils.getPercentWidthSize((int) percentWidth);
         percentHeight = AutoUtils.getPercentHeightSize((int) percentHeight);
         marginTop = AutoUtils.getPercentWidthSize((int) marginTop);
 
@@ -81,7 +83,6 @@ public class BottomBar extends LinearLayout implements View.OnClickListener{
 
 
         typedArr.recycle();
-
 
 
     }
@@ -106,8 +107,20 @@ public class BottomBar extends LinearLayout implements View.OnClickListener{
         LayoutParams imageLayoutParams = new LayoutParams((int)imageSize[0], (int)imageSize[1]);
         imageLayoutParams.setMargins(0, (int)marginTop, 0, (int)marginBottom);
         iconImageView.setLayoutParams(imageLayoutParams);
-
         iconImageView.setBackgroundDrawable(icon);
+
+    }
+
+    public void setImageSourceDraw(int state) {
+        if(state == 0) {
+            tipsTextView.setTextColor(getResources().getColor(R.color.tab_color));
+            iconImageView.setBackgroundDrawable(icon);
+            return;
+        }
+        iconImageView.setBackgroundDrawable(hotIcon);
+        tipsTextView.setTextColor(getResources().getColor(R.color.icon_color_active));
+
+
     }
 
     public void setDrawableColor(Drawable drawable, String color) {
@@ -122,7 +135,7 @@ public class BottomBar extends LinearLayout implements View.OnClickListener{
                 0, 0, 0, 1, 0 };
 
         ColorFilter colorFilter = new ColorMatrixColorFilter(matrix);
-        icon.setColorFilter(colorFilter);
+        drawable.setColorFilter(colorFilter);
     }
 
     public float[] getImageSize() {
@@ -134,6 +147,8 @@ public class BottomBar extends LinearLayout implements View.OnClickListener{
                 : new float[] {(percentWidth / iconWidth) * iconWidth, (percentWidth / iconWidth) * iconHeight};
 
     }
+
+
 
     private void resetSize() {
         percentWidth = dp2px(context, percentWidth);
