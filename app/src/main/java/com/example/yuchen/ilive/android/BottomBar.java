@@ -2,10 +2,16 @@ package com.example.yuchen.ilive.android;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -18,7 +24,7 @@ import com.zhy.autolayout.utils.AutoUtils;
  * Created by yuchen on 17/4/25.
  */
 
-public class BottomBar extends LinearLayout {
+public class BottomBar extends LinearLayout implements View.OnClickListener{
     private Context context;
 
     private View itemView;
@@ -43,7 +49,7 @@ public class BottomBar extends LinearLayout {
     private float ICON_HEIGHT = 20;
     private float ICON_WIDTH = 20;
     private float MARGIN_TOP = 8;
-    private float MARGIN_BOTTOM = 4;
+    private float MARGIN_BOTTOM = 1;
     private float TIPS_TEXT_MARGIN_BOTTOM = 10;
 
     public BottomBar(Context context, AttributeSet attrs) {
@@ -87,12 +93,6 @@ public class BottomBar extends LinearLayout {
         iconImageView = (ImageView)itemView.findViewById(R.id.icon);
         tipsTextView = (TextView)itemView.findViewById(R.id.tipsText);
 
-//        if (textMarginbottom != TEXT_MARGIN_BOTTOM) {
-//            LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT,
-//                    LayoutParams.WRAP_CONTENT);
-//            params.setMargins(0, 0, 0, (int) textMarginbottom);
-//            mTextView.setLayoutParams(params);
-//        }
 
         tipsTextView.setText(tipsText);
         tipsTextView.setTextColor((int)itemColor);
@@ -108,7 +108,21 @@ public class BottomBar extends LinearLayout {
         iconImageView.setLayoutParams(imageLayoutParams);
 
         iconImageView.setBackgroundDrawable(icon);
+    }
 
+    public void setDrawableColor(Drawable drawable, String color) {
+        int iColor = Color.parseColor(color);
+        int red   = (iColor & 0xFF0000) / 0xFFFF;
+        int green = (iColor & 0xFF00) / 0xFF;
+        int blue  = iColor & 0xFF;
+
+        float[] matrix = { 0, 0, 0, 0, red,
+                0, 0, 0, 0, green,
+                0, 0, 0, 0, blue,
+                0, 0, 0, 1, 0 };
+
+        ColorFilter colorFilter = new ColorMatrixColorFilter(matrix);
+        icon.setColorFilter(colorFilter);
     }
 
     public float[] getImageSize() {
@@ -133,5 +147,9 @@ public class BottomBar extends LinearLayout {
         return (int) (dpValue * scale + 0.5f);
     }
 
+    @Override
+    public void onClick(View v) {
+        Log.i("bottom item", "handle click");
+    }
 
 }

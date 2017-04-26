@@ -5,65 +5,77 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#18a"
+    android:background="@color/pageBackgroundColor"
     tools:context="com.example.yuchen.ilive.android.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <ImageView
+        android:src="@drawable/user"
+        android:layout_width="80dp"
+        android:layout_height="90dp"
+        android:background="#d7dd"/>
 
-    <com.zhy.autolayout.AutoLinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="#fff"
-            android:layout_gravity="bottom"
-            android:layout_alignParentBottom="true">
-        <com.example.yuchen.ilive.android.BottomBar
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            app:icon="@drawable/launcher"
-            app:tips_text="首页"
-            app:icon_height="80px"
-            app:icon_width="40px"
-            app:margin_top="12px"
-            app:margin_bottom="4px"
-            app:item_color="#000"
-            app:tips_text_size="12" />
 
-        <com.example.yuchen.ilive.android.BottomBar
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            app:icon="@drawable/launcher"
-            app:tips_text="直播"
-            app:icon_height="80px"
-            app:icon_width="40px"
-            app:margin_top="12px"
-            app:margin_bottom="4px"
-            app:item_color="#000"
-            app:tips_text_size="12" />
-        <com.example.yuchen.ilive.android.BottomBar
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            app:icon="@drawable/launcher"
-            app:tips_text="我"
-            app:icon_height="80px"
-            app:icon_width="40px"
-            app:margin_top="12px"
-            app:margin_bottom="4px"
-            app:item_color="#000"
-            app:tips_text_size="12" />
-    </com.zhy.autolayout.AutoLinearLayout>
+        <com.zhy.autolayout.AutoLinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/tab_border_top"
+                android:layout_gravity="bottom"
+                android:layout_alignParentBottom="true">
+            <com.example.yuchen.ilive.android.BottomBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                app:icon="@drawable/hot"
+                app:tips_text="首页"
+                app:icon_height="100px"
+                app:icon_width="40px"
+                app:margin_top="12px"
+                app:margin_bottom="4px"
+                app:item_color="@color/tab_color"
+                app:tips_text_size="12" />
+            <com.example.yuchen.ilive.android.BottomBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                app:icon="@drawable/flower"
+                app:tips_text="关注"
+                app:icon_height="100px"
+                app:icon_width="40px"
+                app:margin_top="12px"
+                app:margin_bottom="4px"
+                app:item_color="@color/tab_color"
+                app:tips_text_size="12" />
+
+            <com.example.yuchen.ilive.android.BottomBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:onClick="handleTabTouch"
+                app:icon="@drawable/live_icon"
+                app:tips_text="直播"
+                app:icon_height="100px"
+                app:icon_width="40px"
+                app:margin_top="12px"
+                app:margin_bottom="4px"
+                app:item_color="@color/tab_color"
+                app:tips_text_size="12" />
+            <com.example.yuchen.ilive.android.BottomBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                app:icon="@drawable/user"
+                app:tips_text="我"
+                app:icon_height="100px"
+                app:icon_width="40px"
+                app:margin_top="12px"
+                app:margin_bottom="4px"
+                app:item_color="@color/tab_color"
+                app:tips_text_size="12" />
+        </com.zhy.autolayout.AutoLinearLayout>
 
 </RelativeLayout>
