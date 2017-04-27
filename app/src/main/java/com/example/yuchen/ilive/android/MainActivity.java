@@ -24,11 +24,13 @@ public class MainActivity extends AppCompatActivity implements TabLayout.onTabCl
         renderView();
         setActionBar();
 
+
     }
 
     public void setActionBar() {
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        actionBar.setCustomView(R.layout.hot_live_actionbar);
     }
 
     public void renderView() {
@@ -37,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements TabLayout.onTabCl
         fragments.add(HotLive.class);
         fragments.add(Following.class);
         fragments.add(LiveActivity.class);
+        fragments.add(HotList.class);
         fragments.add(User.class);
         tabLayout.initData(fragments, this);
         replaceFragment(HotLive.class, 0);
@@ -44,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements TabLayout.onTabCl
 
     public void replaceFragment(Class<?> cls, int index) {
         //live
-        if(index == 2) {
+        if(cls == LiveActivity.class) {
             Intent liveIntent = new Intent(MainActivity.this, cls);
             liveIntent.putExtra(liveIntentExtraKey, "from main activity");
             startActivity(liveIntent);
