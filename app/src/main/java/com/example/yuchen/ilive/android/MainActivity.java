@@ -1,8 +1,10 @@
 package com.example.yuchen.ilive.android;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,16 +12,23 @@ import android.view.View;
 
 import java.util.ArrayList;
 
-import static android.R.id.tabs;
 
 public class MainActivity extends AppCompatActivity implements TabLayout.onTabClickListener{
 
     private TabLayout tabLayout;
+    public final String liveIntentExtraKey = "COM_EXAMPLE_YUCHEN_ILIVE_ANDROID";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         renderView();
+        setActionBar();
+
+    }
+
+    public void setActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     public void renderView() {
@@ -27,13 +36,20 @@ public class MainActivity extends AppCompatActivity implements TabLayout.onTabCl
         ArrayList<Class<?>> fragments = new ArrayList<>();
         fragments.add(HotLive.class);
         fragments.add(Following.class);
-        fragments.add(Live.class);
+        fragments.add(LiveActivity.class);
         fragments.add(User.class);
         tabLayout.initData(fragments, this);
-        replaceFragment(HotLive.class);
+        replaceFragment(HotLive.class, 0);
     }
 
-    public void replaceFragment(Class<?> cls) {
+    public void replaceFragment(Class<?> cls, int index) {
+        //live
+        if(index == 2) {
+            Intent liveIntent = new Intent(MainActivity.this, cls);
+            liveIntent.putExtra(liveIntentExtraKey, "from main activity");
+            startActivity(liveIntent);
+            return;
+        }
         try {
             Log.i("fragment", cls.getName());
             Fragment fragment =  (Fragment)cls.newInstance();
@@ -48,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements TabLayout.onTabCl
 
     @Override
     public void onTabClick(Class<?> cls, int index) {
-        this.replaceFragment(cls);
+        this.replaceFragment(cls, index);
     }
 
 }

@@ -1,4 +1,9 @@
 <resources>
+    <style name="customerTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/icon_color_active</item>
+        <item name="colorPrimaryDark">@color/icon_color_active</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
