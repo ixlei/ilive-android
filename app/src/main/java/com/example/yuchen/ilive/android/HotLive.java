@@ -17,7 +17,7 @@ public class HotLive extends Fragment {
                              ViewGroup container, Bundle saveInstanceState) {
         View view = layoutInflater.inflate(R.layout.webview, container, false);
         WebView webView = (WebView)view.findViewById(R.id.webView);
-        webView.loadUrl("http://192.168.2.1:8000/");
+        webView.loadUrl("http://192.168.2.1:8000");
         return view;
     }
 }

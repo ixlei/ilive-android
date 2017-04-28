@@ -1,13 +1,15 @@
 package com.example.yuchen.ilive.android;
 
+import android.app.Activity;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.util.Log;
+import android.view.Surface;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by yuchen on 17/4/27.
@@ -15,19 +17,20 @@ import java.util.ArrayList;
 
 public class CameraLive {
 
-    private Context context;
     private ArrayList<CameraInfo> cameraInfos;
     private Camera currCameraDevice = null;
     private CameraInfo currCameraDeviceInfo = null;
 
-    public CameraLive(Context context) {
-        this.context = context;
+    public CameraLive() {
+        if(hasCameraDevice() && detectCameraDevice()) {
+            this.cameraInfos = getCameraInfos();
+        }
     }
 
     public Camera.PreviewCallback cameraPreviewCallback = new Camera.PreviewCallback() {
         @Override
         public void onPreviewFrame(byte[] frame, Camera camera) {
-
+            Log.i("frame", frame.toString());
         }
     };
 
@@ -83,7 +86,6 @@ public class CameraLive {
 
     public static void setCameraPreviewFormat(Camera mCamera, Camera.Parameters parameters, int imageFormat) {
         try {
-//            ImageFormat.NV21
             parameters.setPreviewFormat(imageFormat);
             mCamera.setParameters(parameters);
         } catch (Exception e) {
@@ -105,10 +107,60 @@ public class CameraLive {
         return null;
     }
 
+    public static void setCameraDisplayOrientation(Activity activity,
+                                                   int cameraId, Camera camera) {
+        Camera.CameraInfo info = new Camera.CameraInfo();
+        Camera.getCameraInfo(cameraId, info);
+        int rotation = activity.getWindowManager().getDefaultDisplay()
+                .getRotation();
+        int degrees = 0;
+        switch (rotation) {
+            case Surface.ROTATION_0: degrees = 0; break;
+            case Surface.ROTATION_90: degrees = 90; break;
+            case Surface.ROTATION_180: degrees = 180; break;
+            case Surface.ROTATION_270: degrees = 270; break;
+        }
+        int result;
+        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            result = (info.orientation + degrees) % 360;
+            result = (360 - result) % 360;
+        } else {
+            result = (info.orientation - degrees + 360) % 360;
+        }
+        camera.setDisplayOrientation(result);
+    }
 
 
+    public static Camera.Size findOptimalPreviewSize(Camera mcamera, int width, int height, int screentOrientation, int cameraOrientation) {
+        Camera.Size optmalSize = null;
+        Camera.Parameters parameters = mcamera.getParameters();
+        List<Camera.Size> supportedPreviewSize = parameters.getSupportedPreviewSizes();
+        double minDiffWidth = Double.MAX_VALUE;
+        double minDiffHeight = Double.MAX_EXPONENT;
+        if(supportedPreviewSize == null){
+            return null;
+        }
+        for(int i = 0, ii = supportedPreviewSize.size(); i < ii; i++) {
+            Camera.Size tempSize = supportedPreviewSize.get(i);
+            if(Math.abs(tempSize.width - width) <= minDiffWidth) {
+                minDiffWidth = Math.abs(supportedPreviewSize.get(i).width - width);
+                if(Math.abs(tempSize.height - height) < minDiffHeight) {
+                    optmalSize = tempSize;
+                    minDiffHeight = Math.abs(tempSize.height - height);
+                }
+            }
+        }
+        return optmalSize;
+    }
 
-
-
+    public static void setPreviewSize(Camera camera, Camera.Size size, Camera.Parameters parameters) {
+        try {
+            parameters.setPreviewSize(size.width, size.height);
+            camera.setParameters(parameters);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }

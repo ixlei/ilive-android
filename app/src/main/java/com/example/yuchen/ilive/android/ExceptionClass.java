@@ -10,4 +10,11 @@ public class ExceptionClass {
             super(message);
         }
     }
+
+    public static class InitAudioRecordException extends Exception {
+        public InitAudioRecordException(String msg) {
+            super(msg);
+        }
+    }
+
 }
