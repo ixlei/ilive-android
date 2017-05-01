@@ -30,7 +30,7 @@ public class CameraLive {
     public Camera.PreviewCallback cameraPreviewCallback = new Camera.PreviewCallback() {
         @Override
         public void onPreviewFrame(byte[] frame, Camera camera) {
-            Log.i("frame", frame.toString());
+            //Log.i("frame", frame.toString());
         }
     };
 
@@ -80,7 +80,7 @@ public class CameraLive {
     public void releaseCamera(Camera mCamera) {
         if(mCamera != null) {
             mCamera.release();
-            mCamera = null;
+            //mCamera = null;
         }
     }
 
@@ -95,6 +95,7 @@ public class CameraLive {
 
     public static void setPreviewCallback(Camera camera, Camera.PreviewCallback callback) {
         camera.setPreviewCallback(callback);
+
     }
 
     public CameraInfo getCameraByFacing(int facing) {
@@ -161,6 +162,15 @@ public class CameraLive {
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void setFocusMode(Camera camera, Camera.Parameters parameters) {
+        List<String> supportedFocusModeS = parameters.getSupportedFocusModes();
+        String focusMode = supportedFocusModeS.contains(parameters.FOCUS_MODE_CONTINUOUS_PICTURE)
+                ? parameters.FOCUS_MODE_CONTINUOUS_PICTURE
+                : parameters.FOCUS_MODE_CONTINUOUS_VIDEO;
+        parameters.setFocusMode(focusMode);
+        camera.setParameters(parameters);
     }
 
 }

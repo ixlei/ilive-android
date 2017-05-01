@@ -5,6 +5,7 @@ import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -25,7 +26,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public void onCreate(Bundle saveBundleInstance) {
         super.onCreate(saveBundleInstance);
         setContentView(R.layout.live);
-
+        this.setActionBar();
         //config init
         Config.context = this;
 
@@ -37,10 +38,16 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     }
 
+    public void setActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         mCamera.stopPreview();
         cameraLive.releaseCamera(mCamera);
+        liveAudioRecord.closeRecording();
     }
 
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
@@ -53,6 +60,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Log.i("preview", "SurfaceView width:" + width + " height:" + height);
         try {
             mCamera = cameraLive.openCamera(Camera.CameraInfo.CAMERA_FACING_BACK);
+            CameraLive.setFocusMode(mCamera, mCamera.getParameters());
             CameraLive.setCameraPreviewFormat(mCamera, mCamera.getParameters(), ImageFormat.NV21);
             CameraLive.setCameraDisplayOrientation(this, Camera.CameraInfo.CAMERA_FACING_BACK, mCamera);
             CameraLive.setPreviewCallback(mCamera, cameraLive.cameraPreviewCallback);
@@ -70,6 +78,9 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 mCamera.startPreview();
                 liveAudioRecord.initAudioRecord();
                 liveAudioRecord.startRecording();
+                short audioData[] = new short[liveAudioRecord.getMinBufferSize()];
+                liveAudioRecord.readAudioData(audioData, 0, liveAudioRecord.getMinBufferSize());
+                Log.i("audio data", audioData.toString());
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ExceptionClass.InitAudioRecordException e) {
