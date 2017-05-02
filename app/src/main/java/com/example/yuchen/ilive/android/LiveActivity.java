@@ -7,6 +7,11 @@ import android.graphics.ImageFormat;
 import android.graphics.Paint;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.opengl.EGL14;
+import android.opengl.GLES11Ext;
+import android.opengl.GLES20;
+import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -20,6 +25,9 @@ import android.view.SurfaceView;
 import java.io.IOException;
 import java.util.Random;
 
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
+
 /**
  * Created by yuchen on 17/4/27.
  */
@@ -30,6 +38,9 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private LiveAudioRecord liveAudioRecord = null;
     private VideoCodec vcc;
     private SurfaceTexture mSurfaceTexture;
+    private int mSurfaceTextureId;
+    private GLSurfaceView liveGLSurfaceView = null;
+    private boolean isPreview = false;
 
 
     @Override
@@ -46,16 +57,83 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Config.context = this;
 
 
+        //init camera
         cameraLive = new CameraLive();
+
         liveAudioRecord = new LiveAudioRecord();
 
-        SurfaceView surfaceView = (SurfaceView)findViewById(R.id.liveSurfaceView);
+        liveGLSurfaceView = (android.opengl.GLSurfaceView)findViewById(R.id.liveGLSurfaceView);
+        //set opengl version
+        liveGLSurfaceView.setEGLContextClientVersion(2);
+        //set render
+        liveGLSurfaceView.setRenderer(new LiveGLSurfaceRender());
+        //set mode
+        liveGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
-        surfaceView.getHolder().addCallback(this);
+//        SurfaceView surfaceView = (SurfaceView)findViewById(R.id.liveSurfaceView);
+//
+//        surfaceView.getHolder().addCallback(this);
 
 
+    }
 
+    private class LiveGLSurfaceRender implements  GLSurfaceView.Renderer {
+        @Override
+        public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
+            initTexture();
+        }
 
+        @Override
+        public void onSurfaceChanged(GL10 gl10, int width, int height) {
+            startPreview(width, height);
+        }
+        @Override
+        public void onDrawFrame(GL10 gl10) {
+            synchronized (this) {
+                float[] texMtx = createIdentityMtx();
+                mSurfaceTexture.updateTexImage();
+                mSurfaceTexture.getTransformMatrix(texMtx);
+
+            }
+        }
+
+    }
+
+    public class SurfaceTexFrameAvailaListener implements SurfaceTexture.OnFrameAvailableListener {
+        private GLSurfaceView mGlSurfaceView;
+        public SurfaceTexFrameAvailaListener(GLSurfaceView mGlSurfaceView) {
+            this.mGlSurfaceView = mGlSurfaceView;
+        }
+        @Override
+        public void onFrameAvailable(SurfaceTexture mSurfaceTexture) {
+            mGlSurfaceView.requestRender();
+        }
+    }
+
+    public void initTexture() {
+        int[] textures = new int[1];
+        GLES20.glGenTextures(1, textures, 0);
+        mSurfaceTextureId = textures[0];
+        mSurfaceTexture = new SurfaceTexture(mSurfaceTextureId);
+        mSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexFrameAvailaListener(liveGLSurfaceView));
+        GLES20.glDisable(GLES20.GL_DEPTH_TEST);
+        GLES20.glDisable(GLES20.GL_CULL_FACE);
+        GLES20.glDisable(GLES20.GL_BLEND);
+
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, mSurfaceTextureId);
+        //线性取样
+        GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+                GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+        //线性组合取样
+        GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+                GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+        // s轴截取
+        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+                GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+        //t轴截取
+        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+                GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
     }
 
     public void setActionBar() {
@@ -66,14 +144,70 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         mCamera.stopPreview();
-        cameraLive.releaseCamera(mCamera);
+        cameraLive.releaseCamera();
         liveAudioRecord.closeRecording();
     }
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
     }
+
+    public void startPreview(int width, int height) {
+        if(isPreview) {
+            return;
+        }
+
+        if(!(CameraLive.hasCameraDevice() && CameraLive.detectCameraDevice())) {
+           return;
+        }
+        try {
+            mCamera = cameraLive.openCamera(Camera.CameraInfo.CAMERA_FACING_BACK);
+        } catch (ExceptionClass.CameraNotSupportException e) {
+            Log.i("camera not support", "startPreview");
+        }
+
+        if(mCamera == null) {
+            return;
+        }
+
+        try {
+            CameraLive.setFocusMode(mCamera, mCamera.getParameters());
+        } catch (Exception e) {
+            Log.i("start preview", "set focus mode error");
+        }
+
+        try {
+            CameraLive.setCameraPreviewFormat(mCamera, mCamera.getParameters(), ImageFormat.YV12);
+        } catch (Exception e) {
+
+        }
+
+        try {
+            CameraLive.setCameraDisplayOrientation(this, Camera.CameraInfo.CAMERA_FACING_BACK, mCamera);
+        } catch (Exception e) {
+
+        }
+
+        try {
+            Camera.Size previewSize = CameraLive.findOptimalPreviewSize(mCamera, width, height, 0, 0);
+            cameraLive.currCameraDeviceInfo.setPreviewSize(previewSize.width, previewSize.height);
+            CameraLive.setPreviewSize(mCamera, previewSize, mCamera.getParameters());
+        } catch (Exception e) {
+
+        }
+
+        try {
+            mCamera.setPreviewTexture(mSurfaceTexture);
+        } catch (IOException e) {
+            Log.i("set preview texture", "ioe");
+        }
+
+        mCamera.startPreview();
+        isPreview = true;
+
+
+    }
+
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
@@ -91,6 +225,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
             if(vcc != null) {
                 vcc.setWidthAndHeight(previewSize.width, previewSize.height);
                 vcc.prepareCodecEncoder();
+
             }
             new Thread(vcc.runnable).start();
         } catch (Exception e) {
@@ -101,7 +236,8 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
         if (mCamera != null) {
             Log.i("start preview", "live");
             try {
-                mCamera.setPreviewDisplay(holder);
+                mCamera.setPreviewTexture(mSurfaceTexture);
+                //mCamera.setPreviewDisplay(holder);
                 mCamera.startPreview();
                 liveAudioRecord.initAudioRecord();
                 liveAudioRecord.startRecording();
@@ -115,5 +251,11 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
             }
 
         }
+    }
+
+    public static float[] createIdentityMtx() {
+        float[] m = new float[16];
+        Matrix.setIdentityM(m, 0);
+        return m;
     }
 }

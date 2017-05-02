@@ -33,8 +33,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/tab_border">
-        <SurfaceView
-            android:id="@+id/liveSurfaceView"
+        <!--<SurfaceView-->
+            <!--android:id="@+id/liveSurfaceView"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="fill_parent" />-->
+        <android.opengl.GLSurfaceView
+            android:id="@+id/liveGLSurfaceView"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent" />
         <!--<TextView-->

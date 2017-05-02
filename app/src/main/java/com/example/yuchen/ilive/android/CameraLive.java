@@ -20,6 +20,7 @@ public class CameraLive {
     private ArrayList<CameraInfo> cameraInfos;
     private Camera currCameraDevice = null;
     public CameraInfo currCameraDeviceInfo = null;
+    private boolean isOpen = false;
 
     public CameraLive() {
         if(hasCameraDevice() && detectCameraDevice()) {
@@ -52,12 +53,16 @@ public class CameraLive {
 
     public synchronized Camera openCamera(int facing) throws ExceptionClass.CameraNotSupportException{
         CameraInfo cameraInfo = getCameraByFacing(facing);
+        if(isOpen) {
+            return currCameraDevice;
+        }
+
         if(currCameraDevice != null && currCameraDeviceInfo == cameraInfo) {
             return currCameraDevice;
         }
 
         if(currCameraDevice != null) {
-            releaseCamera(currCameraDevice);
+            releaseCamera();
         }
 
         Log.i("open camera" + cameraInfo.cameraId, "start");
@@ -68,11 +73,12 @@ public class CameraLive {
         }
 
         currCameraDeviceInfo = cameraInfo;
+        isOpen = true;
         return currCameraDevice;
 
     }
 
-    public void releaseCamera(Camera camera) {
+    public void releaseCamera() {
 //        if(mCamera != null) {
 //            mCamera.release();
 //            //mCamera = null;
@@ -81,6 +87,10 @@ public class CameraLive {
             currCameraDevice.release();
             currCameraDevice = null;
         }
+        cameraInfos = null;
+        currCameraDeviceInfo = null;
+        isOpen = false;
+
     }
 
     public static void setCameraPreviewFormat(Camera mCamera, Camera.Parameters parameters, int imageFormat) {
