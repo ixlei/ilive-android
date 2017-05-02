@@ -19,7 +19,7 @@ public class CameraLive {
 
     private ArrayList<CameraInfo> cameraInfos;
     private Camera currCameraDevice = null;
-    private CameraInfo currCameraDeviceInfo = null;
+    public CameraInfo currCameraDeviceInfo = null;
 
     public CameraLive() {
         if(hasCameraDevice() && detectCameraDevice()) {
@@ -27,12 +27,7 @@ public class CameraLive {
         }
     }
 
-    public Camera.PreviewCallback cameraPreviewCallback = new Camera.PreviewCallback() {
-        @Override
-        public void onPreviewFrame(byte[] frame, Camera camera) {
-            //Log.i("frame", frame.toString());
-        }
-    };
+
 
     public static boolean hasCameraDevice() {
         return Config.context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
@@ -77,10 +72,14 @@ public class CameraLive {
 
     }
 
-    public void releaseCamera(Camera mCamera) {
-        if(mCamera != null) {
-            mCamera.release();
-            //mCamera = null;
+    public void releaseCamera(Camera camera) {
+//        if(mCamera != null) {
+//            mCamera.release();
+//            //mCamera = null;
+//        }
+        if(currCameraDevice != null) {
+            currCameraDevice.release();
+            currCameraDevice = null;
         }
     }
 
@@ -172,5 +171,22 @@ public class CameraLive {
         parameters.setFocusMode(focusMode);
         camera.setParameters(parameters);
     }
+
+    public static byte[] swapYV12toI420(byte[] yv12bytes, int width, int height) {
+        byte[] i420bytes = new byte[yv12bytes.length];
+        for (int i = 0; i < width * height; i++) {
+            i420bytes[i] = yv12bytes[i];
+        }
+        for (int i = width * height; i < width * height + (width/2 * height/2); i++) {
+            i420bytes[i] = yv12bytes[i + (width/2*height/2)];
+        }
+
+        for (int i = width * height + (width/2 * height/2); i < width * height + 2*(width/2 * height/2); i++) {
+            i420bytes[i] = yv12bytes[i - (width/2*height/2)];
+        }
+
+        return i420bytes;
+    }
+
 
 }

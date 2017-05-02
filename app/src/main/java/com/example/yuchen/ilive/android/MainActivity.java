@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements TabLayout.onTabCl
     public void replaceFragment(Class<?> cls, int index) {
         //live
         if(cls == LiveActivity.class) {
+            super.onResume();
             Intent liveIntent = new Intent(MainActivity.this, cls);
             liveIntent.putExtra(liveIntentExtraKey, "from main activity");
             startActivity(liveIntent);

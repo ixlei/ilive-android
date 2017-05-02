@@ -9,13 +9,18 @@ public class CameraInfo {
     public int cameraId;
     public int cameraFacing;
     public int openState;
-    private int cameraWidth;
-    private int cameraHeight;
+    public int cameraWidth;
+    public int cameraHeight;
 
     public CameraInfo(int cameraId, int cameraFacing) {
         this.cameraId = cameraId;
         this.cameraFacing = cameraFacing;
         this.openState = 0;
+    }
+
+    public void setPreviewSize(int width, int height) {
+        cameraWidth = width;
+        cameraHeight = height;
     }
 
 }
