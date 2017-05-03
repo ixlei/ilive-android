@@ -7,8 +7,6 @@ import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.os.Build;
 import android.util.Log;
-import android.view.Surface;
-import android.view.SurfaceView;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -21,12 +19,11 @@ public class VideoCodec {
     private String MIME_TYPE = "video/avc";
     private int width;
     private int height;
-    private int COLOR_FORMAT = MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar;
+    private int COLOR_FORMAT = MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface;
     private int BIT_RATE = 125000;
     private int FRAME_RATE = 30;
     private int IFRAME_INTERVAL = 5;
-    private Surface surface;
-    private Surface mSurface;
+    private CodecSurface mInputSurface;
 
 
     private MediaCodec mediaCodec;
@@ -42,8 +39,8 @@ public class VideoCodec {
         this.height = height;
     }
 
-    public VideoCodec(Surface surface) {
-        this.surface = surface;
+    public VideoCodec(CodecSurface surface) {
+        this.mInputSurface = surface;
     }
 
     public void prepareCodecEncoder() throws IOException{
@@ -57,12 +54,11 @@ public class VideoCodec {
             mediaFormat.setInteger(mediaFormat.KEY_BIT_RATE, BIT_RATE);
             mediaFormat.setInteger(mediaFormat.KEY_FRAME_RATE, FRAME_RATE);
             mediaFormat.setInteger(mediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
-            mediaFormat.setInteger(mediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
+            mediaFormat.setInteger(mediaFormat.KEY_COLOR_FORMAT, COLOR_FORMAT);
 
             mediaCodec = MediaCodec.createByCodecName(codecInfo.getName());
             mediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
-//            mediaCodec.setInputSurface(surface);
-            mSurface = mediaCodec.createInputSurface();
+            mInputSurface = new CodecSurface(mediaCodec.createInputSurface());
             mediaCodec.start();
         } finally {
             if(mediaCodec == null) {
@@ -142,8 +138,8 @@ public class VideoCodec {
         return null;
     }
 
-    public Surface getSurface() {
-        return this.surface;
+    public CodecSurface getSurface() {
+        return this.mInputSurface;
     }
 
     public void encoder() {
