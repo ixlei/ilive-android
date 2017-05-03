@@ -41,6 +41,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private int mSurfaceTextureId;
     private GLSurfaceView liveGLSurfaceView = null;
     private boolean isPreview = false;
+    private RenderTexToGLSurface  mRenderTexToGLSurface;
 
 
     @Override
@@ -81,6 +82,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
         @Override
         public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
             initTexture();
+            mRenderTexToGLSurface = new RenderTexToGLSurface(mSurfaceTextureId);
         }
 
         @Override
@@ -93,7 +95,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 float[] texMtx = createIdentityMtx();
                 mSurfaceTexture.updateTexImage();
                 mSurfaceTexture.getTransformMatrix(texMtx);
-
+                mRenderTexToGLSurface.draw(texMtx);
             }
         }
 
@@ -134,6 +136,24 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
         //t轴截取
         GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
                 GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+    }
+
+    public void destroyTexture(int textureId) {
+        GLES20.glDeleteTextures(1, new int[] {textureId}, 0);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mCamera.stopPreview();
+        cameraLive.releaseCamera();
+        liveGLSurfaceView.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        destroyTexture(mSurfaceTextureId);
     }
 
     public void setActionBar() {
