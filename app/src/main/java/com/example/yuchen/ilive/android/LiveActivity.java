@@ -35,13 +35,15 @@ import javax.microedition.khronos.opengles.GL10;
 public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Callback,  Camera.PreviewCallback{
     private CameraLive cameraLive = null;
     private Camera mCamera = null;
+
     private LiveAudioRecord liveAudioRecord = null;
-    private VideoCodec vcc;
+    private VideoCodec videoEncoder;
     private SurfaceTexture mSurfaceTexture;
     private int mSurfaceTextureId;
     private GLSurfaceView liveGLSurfaceView = null;
     private boolean isPreview = false;
     private RenderTexToGLSurface  mRenderTexToGLSurface;
+    private RenderTexToSurface renderTexToSurface;
 
 
     @Override
@@ -63,6 +65,16 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         liveAudioRecord = new LiveAudioRecord();
 
+        if(cameraLive != null) {
+            //CameraInfo cameraInfo = cameraLive.currCameraDeviceInfo;
+            //if(cameraInfo != null) {
+                videoEncoder = new VideoCodec();
+            //}
+
+        }
+
+        renderTexToSurface = new RenderTexToSurface(videoEncoder);
+
         liveGLSurfaceView = (android.opengl.GLSurfaceView)findViewById(R.id.liveGLSurfaceView);
         //set opengl version
         liveGLSurfaceView.setEGLContextClientVersion(2);
@@ -82,12 +94,19 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
         @Override
         public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
             initTexture();
+            renderTexToSurface.setSurfaceTextureId(mSurfaceTextureId);
             mRenderTexToGLSurface = new RenderTexToGLSurface(mSurfaceTextureId);
+
+
         }
 
         @Override
         public void onSurfaceChanged(GL10 gl10, int width, int height) {
             startPreview(width, height);
+            CameraInfo cameraInfo = cameraLive.currCameraDeviceInfo;
+            Log.i("camera info", cameraInfo.cameraWidth + "," + cameraInfo.cameraHeight);
+
+            videoEncoder.setWidthAndHeight(cameraInfo.cameraWidth, cameraInfo.cameraHeight);
         }
         @Override
         public void onDrawFrame(GL10 gl10) {
@@ -98,6 +117,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 mSurfaceTexture.updateTexImage();
                 mSurfaceTexture.getTransformMatrix(texMtx);
                 mRenderTexToGLSurface.draw(texMtx);
+                renderTexToSurface.onDraw();
             }
         }
 
@@ -150,6 +170,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
         super.onPause();
         mCamera.stopPreview();
         cameraLive.releaseCamera();
+        videoEncoder.releaseEncoder();
         liveGLSurfaceView.onPause();
     }
 
@@ -234,7 +255,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        vcc = new VideoCodec(holder.getSurface());
+        //vcc = new VideoCodec();
         try {
             mCamera = cameraLive.openCamera(Camera.CameraInfo.CAMERA_FACING_BACK);
             CameraLive.setFocusMode(mCamera, mCamera.getParameters());
@@ -245,12 +266,12 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
             cameraLive.currCameraDeviceInfo.setPreviewSize(previewSize.width, previewSize.height);
             CameraLive.setPreviewSize(mCamera, previewSize, mCamera.getParameters());
 
-            if(vcc != null) {
-                vcc.setWidthAndHeight(previewSize.width, previewSize.height);
-                vcc.prepareCodecEncoder();
-
-            }
-            new Thread(vcc.runnable).start();
+//            if(vcc != null) {
+//                vcc.setWidthAndHeight(previewSize.width, previewSize.height);
+//                vcc.prepareCodecEncoder();
+//
+//            }
+//            new Thread(vcc.runnable).start();
         } catch (Exception e) {
             e.printStackTrace();
         }

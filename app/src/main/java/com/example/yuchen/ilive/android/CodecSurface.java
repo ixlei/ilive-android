@@ -30,6 +30,10 @@ public class CodecSurface {
         return mSurface;
     }
 
+    public EGLDisplay getmEGLDisplay() {
+        return this.mEGLDisplay;
+    }
+
     public void initEGL() {
         mEGLDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
         if (mEGLDisplay == EGL14.EGL_NO_DISPLAY) {
