@@ -5,4 +5,15 @@ package com.example.yuchen.ilive.android;
  */
 
 public class AudioCodec {
+    public AudioCodec() {
+
+    }
+
+    public void prepareCodec() {
+
+    }
+
+    public void encoder() {
+
+    }
 }

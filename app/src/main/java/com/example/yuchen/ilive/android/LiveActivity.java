@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.opengl.EGL14;
+import android.opengl.EGLDisplay;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -50,6 +51,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public void onPreviewFrame(final byte[] frame, Camera camera) {
 
         final byte[] yv12 = CameraLive.swapYV12toI420(frame, cameraLive.currCameraDeviceInfo.cameraWidth, cameraLive.currCameraDeviceInfo.cameraHeight);
+        videoEncoder.encode(yv12);
     }
 
     @Override
@@ -107,6 +109,31 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
             Log.i("camera info", cameraInfo.cameraWidth + "," + cameraInfo.cameraHeight);
 
             videoEncoder.setWidthAndHeight(cameraInfo.cameraWidth, cameraInfo.cameraHeight);
+            renderTexToSurface.setVideoSize(cameraInfo.cameraWidth, cameraInfo.cameraHeight);
+            try {
+                liveAudioRecord.initAudioRecord();
+                liveAudioRecord.startRecording();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (true) {
+                            short audioData[] = new short[liveAudioRecord.getMinBufferSize()];
+                            liveAudioRecord.readAudioData(audioData, 0, liveAudioRecord.getMinBufferSize());
+                            Log.i("audio data", audioData.toString());
+                        }
+                    }
+                });
+
+            } catch (ExceptionClass.InitAudioRecordException e) {
+                e.printStackTrace();
+            }
+            try {
+                videoEncoder.prepareCodecEncoder();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
         }
         @Override
         public void onDrawFrame(GL10 gl10) {
@@ -117,7 +144,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 mSurfaceTexture.updateTexImage();
                 mSurfaceTexture.getTransformMatrix(texMtx);
                 mRenderTexToGLSurface.draw(texMtx);
-                renderTexToSurface.onDraw();
+                //renderTexToSurface.onDraw();
             }
         }
 
@@ -248,6 +275,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         mCamera.startPreview();
         isPreview = true;
+        CameraLive.setPreviewCallback(mCamera, this);
 
 
     }

@@ -24,7 +24,7 @@ public class VideoCodec {
     private int width;
     private int height;
     private int COLOR_FORMAT = MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface;
-    private int BIT_RATE = 500000;
+    private int BIT_RATE = 125000;
     private int FRAME_RATE = 15;
     private int IFRAME_INTERVAL = 5;
 
@@ -78,12 +78,13 @@ public class VideoCodec {
             mediaFormat.setInteger(mediaFormat.KEY_BIT_RATE, BIT_RATE);
             mediaFormat.setInteger(mediaFormat.KEY_FRAME_RATE, FRAME_RATE);
             mediaFormat.setInteger(mediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
-            mediaFormat.setInteger(mediaFormat.KEY_COLOR_FORMAT, COLOR_FORMAT);
+            //mediaFormat.setInteger(mediaFormat.KEY_COLOR_FORMAT, COLOR_FORMAT);
+            mediaFormat.setInteger(mediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar);
 
             mediaCodec = MediaCodec.createByCodecName(codecInfo.getName());
             mediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
 
-            mInputSurface = new CodecSurface(mediaCodec.createInputSurface());
+            //mInputSurface = new CodecSurface(mediaCodec.createInputSurface());
             mHandlerThread = new HandlerThread("videoEncode");
             mHandlerThread.start();
             mEncoderHandler = new Handler(mHandlerThread.getLooper());
@@ -118,12 +119,10 @@ public class VideoCodec {
             mInputSurface.swapBuffers();
             mInputSurface.setPresentationTime(System.nanoTime());
         }
-        //return false;
-
     }
 
     public void encode(byte[] frames) {
-        int inputBufferId = mediaCodec.dequeueInputBuffer(-1);
+        int inputBufferId = mediaCodec.dequeueInputBuffer(0);
         if(inputBufferId >= 0) {
             ByteBuffer inputBuffer = mediaCodec.getInputBuffer(inputBufferId);
             inputBuffer.clear();
@@ -135,14 +134,15 @@ public class VideoCodec {
         MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
         int outputBufferId = mediaCodec.dequeueOutputBuffer(bufferInfo, 0);
 
-        while (outputBufferId >= 0) {
+        if (outputBufferId >= 0) {
             if (outputBufferId >= 0) {
                 ByteBuffer outputBuffer = mediaCodec.getOutputBuffer(outputBufferId);
-                Log.i("data", outputBuffer.toString());
+                mediaCodec.releaseOutputBuffer(outputBufferId, false);
+                Log.i("data---", outputBuffer.toString());
             } else if (outputBufferId == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                 MediaFormat newMediaFormat = mediaCodec.getOutputFormat();
             }
-            outputBufferId = mediaCodec.dequeueOutputBuffer(bufferInfo, 0);
+            //outputBufferId = mediaCodec.dequeueOutputBuffer(bufferInfo, 0);
         }
     }
 
@@ -192,17 +192,19 @@ public class VideoCodec {
         ByteBuffer[] outBuffers = mediaCodec.getOutputBuffers();
         while (isRecording) {
             int outputBufferId = mediaCodec.dequeueOutputBuffer(bufferInfo, 100);
-                if (outputBufferId >= 0) {
-                    ByteBuffer bb = outBuffers[outputBufferId];
-                    byte[] b = new byte[bb.remaining()];
-                    bb.get(b);
-                    Log.i("data", b.length + "");
+            if(outputBufferId == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+                MediaFormat newMediaFormat = mediaCodec.getOutputFormat();
+                Log.i("cas-0", newMediaFormat + "");
 
-                    mediaCodec.releaseOutputBuffer(outputBufferId, false);
+            } else if (outputBufferId >= 0) {
+                ByteBuffer bb = outBuffers[outputBufferId];
+                byte[] b = new byte[bb.remaining()];
+                bb.get(b);
+                Log.i("data", b.length + "");
 
-                } else if (outputBufferId == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+                mediaCodec.releaseOutputBuffer(outputBufferId, false);
 
-                }
+            }
 
         }
     }
