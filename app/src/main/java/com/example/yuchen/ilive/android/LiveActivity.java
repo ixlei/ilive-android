@@ -92,6 +92,8 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
         @Override
         public void onDrawFrame(GL10 gl10) {
             synchronized (this) {
+                GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
                 float[] texMtx = createIdentityMtx();
                 mSurfaceTexture.updateTexImage();
                 mSurfaceTexture.getTransformMatrix(texMtx);
@@ -117,6 +119,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
         GLES20.glGenTextures(1, textures, 0);
         mSurfaceTextureId = textures[0];
         mSurfaceTexture = new SurfaceTexture(mSurfaceTextureId);
+
         mSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexFrameAvailaListener(liveGLSurfaceView));
         GLES20.glDisable(GLES20.GL_DEPTH_TEST);
         GLES20.glDisable(GLES20.GL_CULL_FACE);
