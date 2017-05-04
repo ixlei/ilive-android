@@ -45,8 +45,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private boolean isPreview = false;
     private RenderTexToGLSurface  mRenderTexToGLSurface;
     private RenderTexToSurface renderTexToSurface;
-    private AudioCodec mAudioCodec = null;
-
+    private AudioEncoderHandler mAudioEncoderHandler = null;
 
     @Override
     public void onPreviewFrame(final byte[] frame, Camera camera) {
@@ -110,10 +109,13 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 liveAudioRecord.initAudioRecord();
                 liveAudioRecord.startRecording();
                 if(liveAudioRecord != null) {
-                    new AudioEncoderHandler(liveAudioRecord).start();
+                    mAudioEncoderHandler = new AudioEncoderHandler(liveAudioRecord);
+                    mAudioEncoderHandler.start();
                 }
 
             } catch (ExceptionClass.InitAudioRecordException e) {
+                liveAudioRecord.closeRecording();
+                mAudioEncoderHandler.stopEncode();
                 e.printStackTrace();
             }
             try {
@@ -188,6 +190,9 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
         cameraLive.releaseCamera();
         videoEncoder.releaseEncoder();
         liveGLSurfaceView.onPause();
+        liveAudioRecord.closeRecording();
+        mAudioEncoderHandler.stopEncode();
+
     }
 
     @Override
@@ -264,11 +269,25 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         mCamera.startPreview();
         isPreview = true;
-        CameraLive.setPreviewCallback(mCamera, this);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                CameraLive.setPreviewCallback(mCamera, new PreviewCallback());
+            }
+        }).start();
+
 
 
     }
 
+    public class PreviewCallback implements  Camera.PreviewCallback {
+        @Override
+        public void onPreviewFrame(final byte[] frame, Camera camera) {
+
+            final byte[] yv12 = CameraLive.swapYV12toI420(frame, cameraLive.currCameraDeviceInfo.cameraWidth, cameraLive.currCameraDeviceInfo.cameraHeight);
+            videoEncoder.encode(yv12);
+        }
+    }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
@@ -283,12 +302,6 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
             cameraLive.currCameraDeviceInfo.setPreviewSize(previewSize.width, previewSize.height);
             CameraLive.setPreviewSize(mCamera, previewSize, mCamera.getParameters());
 
-//            if(vcc != null) {
-//                vcc.setWidthAndHeight(previewSize.width, previewSize.height);
-//                vcc.prepareCodecEncoder();
-//
-//            }
-//            new Thread(vcc.runnable).start();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -300,17 +313,12 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 mCamera.setPreviewTexture(mSurfaceTexture);
                 //mCamera.setPreviewDisplay(holder);
                 mCamera.startPreview();
-                liveAudioRecord.initAudioRecord();
-                liveAudioRecord.startRecording();
-//                short audioData[] = new short[liveAudioRecord.getMinBufferSize()];
-//                liveAudioRecord.readAudioData(audioData, 0, liveAudioRecord.getMinBufferSize());
-//                Log.i("audio data", audioData.toString());
+//                liveAudioRecord.initAudioRecord();
+//                liveAudioRecord.startRecording();
+
             } catch (IOException e) {
                 e.printStackTrace();
-            } catch (ExceptionClass.InitAudioRecordException e) {
-                Log.i("init audio error", e.getMessage());
             }
-
         }
     }
 
