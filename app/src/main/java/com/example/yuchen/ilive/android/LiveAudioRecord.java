@@ -66,7 +66,7 @@ public class LiveAudioRecord {
 
     }
 
-    public int readAudioData(@NonNull short[] audioData, int offsetInBytes, int sizeInBytes) {
+    public int readAudioData(@NonNull byte[] audioData, int offsetInBytes, int sizeInBytes) {
         return mAudioRecord.read(audioData, offsetInBytes, sizeInBytes);
     }
 
@@ -87,9 +87,11 @@ public class LiveAudioRecord {
             mAudioRecord.release();
             mAudioRecord = null;
             mAudioManager.setMicrophoneMute(false);
-            //mAudioManager = null;
+            mAudioManager = null;
         }
     }
+
+
 
     public  byte[] short2byte(short[] shortArr) {
         int shortArrayLength = shortArr.length;

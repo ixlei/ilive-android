@@ -45,6 +45,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private boolean isPreview = false;
     private RenderTexToGLSurface  mRenderTexToGLSurface;
     private RenderTexToSurface renderTexToSurface;
+    private AudioCodec mAudioCodec = null;
 
 
     @Override
@@ -68,11 +69,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
         liveAudioRecord = new LiveAudioRecord();
 
         if(cameraLive != null) {
-            //CameraInfo cameraInfo = cameraLive.currCameraDeviceInfo;
-            //if(cameraInfo != null) {
-                videoEncoder = new VideoCodec();
-            //}
-
+            videoEncoder = new VideoCodec();
         }
 
         renderTexToSurface = new RenderTexToSurface(videoEncoder);
@@ -99,7 +96,6 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
             renderTexToSurface.setSurfaceTextureId(mSurfaceTextureId);
             mRenderTexToGLSurface = new RenderTexToGLSurface(mSurfaceTextureId);
 
-
         }
 
         @Override
@@ -113,16 +109,9 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
             try {
                 liveAudioRecord.initAudioRecord();
                 liveAudioRecord.startRecording();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        while (true) {
-                            short audioData[] = new short[liveAudioRecord.getMinBufferSize()];
-                            liveAudioRecord.readAudioData(audioData, 0, liveAudioRecord.getMinBufferSize());
-                            Log.i("audio data", audioData.toString());
-                        }
-                    }
-                });
+                if(liveAudioRecord != null) {
+                    new AudioEncoderHandler(liveAudioRecord).start();
+                }
 
             } catch (ExceptionClass.InitAudioRecordException e) {
                 e.printStackTrace();
@@ -313,9 +302,9 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 mCamera.startPreview();
                 liveAudioRecord.initAudioRecord();
                 liveAudioRecord.startRecording();
-                short audioData[] = new short[liveAudioRecord.getMinBufferSize()];
-                liveAudioRecord.readAudioData(audioData, 0, liveAudioRecord.getMinBufferSize());
-                Log.i("audio data", audioData.toString());
+//                short audioData[] = new short[liveAudioRecord.getMinBufferSize()];
+//                liveAudioRecord.readAudioData(audioData, 0, liveAudioRecord.getMinBufferSize());
+//                Log.i("audio data", audioData.toString());
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ExceptionClass.InitAudioRecordException e) {

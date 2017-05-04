@@ -3,6 +3,7 @@ package com.example.yuchen.ilive.android;
 import android.media.AudioFormat;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
+import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.util.Log;
 
@@ -14,17 +15,20 @@ import java.nio.ByteBuffer;
  */
 
 public class AudioCodec {
-    public static final int  SAMPLE_RATE_IN_HZ = 44100;
+
+    private int  SAMPLE_RATE_IN_HZ = 44100;
+    private String MINE = "audio/mp4a-latm";
+
     // 单声道
-    public static final int AUDIO_CHANNEL = AudioFormat.CHANNEL_IN_MONO;
-    public static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
-    private static final String MINE = "audio/mp4a-latm";
-    private static final int AAC_PROFILE = MediaCodecInfo.CodecProfileLevel.AACObjectLC;
+    private int AUDIO_CHANNEL = 1;
+    private int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
+
+    private int AAC_PROFILE = MediaCodecInfo.CodecProfileLevel.AACObjectLC;
 
     private MediaCodec mAudioCodec = null;
 
     private int mMaxInputBufferSize;
-    private boolean isRecording = false;
+    private boolean isEncoding = false;
 
     private MediaCodec.BufferInfo mediaBufferinfo = new MediaCodec.BufferInfo();
 
@@ -41,23 +45,49 @@ public class AudioCodec {
      */
 
     public void prepareCodec() {
-        MediaFormat mAudioFormat = MediaFormat.createAudioFormat(MINE, SAMPLE_RATE_IN_HZ, AUDIO_CHANNEL);
-        mAudioFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, AAC_PROFILE);
-        mAudioFormat.setInteger(MediaFormat.KEY_BIT_RATE, 1024 * 64);
-        mAudioFormat.setInteger(MediaFormat.KEY_SAMPLE_RATE, SAMPLE_RATE_IN_HZ);
-        mAudioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, mMaxInputBufferSize);
 
         try {
-            mAudioCodec = MediaCodec.createEncoderByType(MINE);
+            mAudioCodec = MediaCodec.createByCodecName(selectCodec(MINE).getName());
+        } catch (IOException e) {
+            Log.i("create mediaCodec error", e.getMessage());
+        }
+
+        MediaFormat mAudioFormat = MediaFormat.createAudioFormat(MINE, SAMPLE_RATE_IN_HZ, AUDIO_CHANNEL);
+        mAudioFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, AAC_PROFILE);
+        mAudioFormat.setInteger(MediaFormat.KEY_BIT_RATE, 128000);
+        mAudioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, mMaxInputBufferSize);
+
+        if(mAudioCodec != null) {
             mAudioCodec.configure(mAudioFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
             mAudioCodec.start();
-        } catch (IOException e) {
-            Log.i("prepare audio codec", e.getMessage());
+            isEncoding = true;
         }
+
+    }
+
+    private static MediaCodecInfo selectCodec(String mimeType) {
+        int numCodecs = MediaCodecList.getCodecCount();
+        for (int i = 0; i < numCodecs; i++) {
+            MediaCodecInfo codecInfo = MediaCodecList.getCodecInfoAt(i);
+            if (!codecInfo.isEncoder()) {
+                continue;
+            }
+            String[] types = codecInfo.getSupportedTypes();
+            for (int j = 0; j < types.length; j++) {
+                if (types[j].equalsIgnoreCase(mimeType)) {
+                    return codecInfo;
+                }
+            }
+        }
+        return null;
     }
 
     public void encoder(byte[] frames) {
-        int inputBufferId = mAudioCodec.dequeueInputBuffer(0);
+        if(!isEncoding) {
+            return;
+        }
+
+        int inputBufferId = mAudioCodec.dequeueInputBuffer(1000);
         if(inputBufferId >= 0) {
             ByteBuffer inputBuffer = mAudioCodec.getInputBuffer(inputBufferId);
             inputBuffer.clear();
@@ -65,8 +95,7 @@ public class AudioCodec {
             mAudioCodec.queueInputBuffer(inputBufferId, 0, frames.length, System.nanoTime(), 0);
         }
 
-         //MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
-         int outputBufferId = mAudioCodec.dequeueOutputBuffer(mediaBufferinfo, 0);
+        int outputBufferId = mAudioCodec.dequeueOutputBuffer(mediaBufferinfo, 1000);
 
         if (outputBufferId == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
 
@@ -74,13 +103,13 @@ public class AudioCodec {
 
         } else if(outputBufferId == MediaCodec.INFO_TRY_AGAIN_LATER) {
             Log.i("try later", outputBufferId + "");
-
         } else if(outputBufferId == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
             ByteBuffer outputBuffer = mAudioCodec.getOutputBuffer(outputBufferId);
 
             mAudioCodec.releaseOutputBuffer(outputBufferId, false);
         } else {
             //other to do
+            Log.i("ouputid", outputBufferId + "");
         }
     }
 
@@ -89,13 +118,13 @@ public class AudioCodec {
         if(mAudioCodec != null) {
             mAudioCodec.stop();
             mAudioCodec.release();
-            isRecording = false;
+            isEncoding = false;
             mAudioCodec = null;
         }
     }
 
-    public boolean getRecordState() {
-        return isRecording;
+    public boolean getEncoderState() {
+        return isEncoding;
     }
 
     public byte[] packageAccAudio(byte[] audio) {
