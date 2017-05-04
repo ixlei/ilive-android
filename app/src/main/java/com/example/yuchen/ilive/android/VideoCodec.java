@@ -26,7 +26,7 @@ public class VideoCodec {
     private int COLOR_FORMAT = MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface;
     private int BIT_RATE = 125000;
     private int FRAME_RATE = 15;
-    private int IFRAME_INTERVAL = 5;
+    private int IFRAME_INTERVAL = 2;
 
     private boolean isRecording = false;
 
@@ -134,16 +134,26 @@ public class VideoCodec {
         MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
         int outputBufferId = mediaCodec.dequeueOutputBuffer(bufferInfo, 0);
 
-        if (outputBufferId >= 0) {
-            if (outputBufferId >= 0) {
-                ByteBuffer outputBuffer = mediaCodec.getOutputBuffer(outputBufferId);
-                mediaCodec.releaseOutputBuffer(outputBufferId, false);
-                Log.i("data---", outputBuffer.toString());
-            } else if (outputBufferId == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                MediaFormat newMediaFormat = mediaCodec.getOutputFormat();
-            }
-            //outputBufferId = mediaCodec.dequeueOutputBuffer(bufferInfo, 0);
+        //if (outputBufferId >= 0) {
+        if (outputBufferId == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+            MediaFormat newMediaFormat = mediaCodec.getOutputFormat();
+            ByteBuffer SPSByteBuffer = newMediaFormat.getByteBuffer("csd-0");
+            ByteBuffer PSPByteBuffer = newMediaFormat.getByteBuffer("csd-1");
+//            byte[] bb = new byte[4];
+//            SPSByteBuffer.get(bb, 4, 4);
+//            ByteBuffer b = ByteBuffer.wrap(bb);
+//            Log.i("sps start code", b.getInt() + "");
+            Log.i("SPS", SPSByteBuffer.toString());
+            Log.i("psp", PSPByteBuffer.toString());
+
+
+        } else if (outputBufferId >= 0) {
+            ByteBuffer outputBuffer = mediaCodec.getOutputBuffer(outputBufferId);
+            mediaCodec.releaseOutputBuffer(outputBufferId, false);
+            Log.i("data---", outputBuffer.toString());
         }
+
+        //}
     }
 
 

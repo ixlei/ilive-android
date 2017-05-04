@@ -29,6 +29,7 @@ public class AudioCodec {
 
     private int mMaxInputBufferSize;
     private boolean isEncoding = false;
+    private int adtsLen = 7;
 
     private MediaCodec.BufferInfo mediaBufferinfo = new MediaCodec.BufferInfo();
 
@@ -103,17 +104,26 @@ public class AudioCodec {
             MediaFormat newMediaFormat = mAudioCodec.getOutputFormat();
 
         } else if(outputBufferId == MediaCodec.INFO_TRY_AGAIN_LATER) {
+
             Log.i("try later", outputBufferId + "");
+
         } else if(outputBufferId == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+
             ByteBuffer outputBuffer = mAudioCodec.getOutputBuffer(outputBufferId);
-            Log.i("audio data", outputBuffer.toString());
             mAudioCodec.releaseOutputBuffer(outputBufferId, false);
+
         } else if(outputBufferId >= 0){
-            //other to do
             ByteBuffer outputBuffer = mAudioCodec.getOutputBuffer(outputBufferId);
-            Log.i("audio data", outputBuffer.toString());
+
+            outputBuffer.position(mediaBufferinfo.offset);
+            byte[] audioAccData = new byte[mediaBufferinfo.size + adtsLen];
+            outputBuffer.get(audioAccData, adtsLen, mediaBufferinfo.size);
+            addADTStoPacket(audioAccData, audioAccData.length);
+
+            Log.i("acc data", audioAccData.length + "");
+            Log.i("acc data", outputBuffer.toString());
+
             mAudioCodec.releaseOutputBuffer(outputBufferId, false);
-            Log.i("ouputid", outputBufferId + "");
         }
     }
 

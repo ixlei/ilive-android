@@ -23,8 +23,6 @@ public class MainActivity extends AppCompatActivity implements TabLayout.onTabCl
         setContentView(R.layout.activity_main);
         renderView();
         setActionBar();
-
-
     }
 
     public void setActionBar() {
