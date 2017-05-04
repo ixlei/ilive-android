@@ -36,7 +36,7 @@ public class LiveAudioRecord {
     public static final int VOICE_CALL = MediaRecorder.AudioSource.VOICE_CALL;
 
     //sample rate
-    public static final int  SAMPLE_RATE_IN_HZ = 16000;
+    public static final int  SAMPLE_RATE_IN_HZ = 44100;
     //audio channels configure
     public static final int AUDIO_CHANNEL = AudioFormat.CHANNEL_IN_MONO;
     //audio format
@@ -55,7 +55,7 @@ public class LiveAudioRecord {
 
         //voice communication echo cancellation
         try {
-            mAudioRecord = new AudioRecord(VOICE_COMMUNICATION, SAMPLE_RATE_IN_HZ, AUDIO_CHANNEL, AUDIO_FORMAT, minBufferSize);
+            mAudioRecord = new AudioRecord(MIC, SAMPLE_RATE_IN_HZ, AUDIO_CHANNEL, AUDIO_FORMAT, minBufferSize);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
@@ -75,8 +75,8 @@ public class LiveAudioRecord {
             return;
         }
         mAudioManager = (AudioManager)Config.context.getSystemService(Config.context.AUDIO_SERVICE);
-        mAudioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
-        mAudioManager.setMicrophoneMute(true);
+        mAudioManager.setMode(MIC);
+        //mAudioManager.setMicrophoneMute(true);
         mAudioRecord.startRecording();
     }
 
