@@ -131,7 +131,7 @@ public class FlashVideoMux {
         return videoFirstTag;
     }
 
-    
+
 
     public int getSoundRate(double val) {
         if(val == 5.5) {
