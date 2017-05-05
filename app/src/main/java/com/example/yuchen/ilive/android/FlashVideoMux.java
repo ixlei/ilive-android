@@ -131,7 +131,10 @@ public class FlashVideoMux {
         return videoFirstTag;
     }
 
-
+    public byte[] muxFlvMetadata(int width, int height, int fps, int audioRate, int audioSize, int channelCout) {
+        boolean isStereo = channelCout == 2 ? true : false;
+        return new byte[1];
+    }
 
     public int getSoundRate(double val) {
         if(val == 5.5) {
