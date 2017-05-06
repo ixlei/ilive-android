@@ -12,6 +12,7 @@ public class AudioEncoderHandler extends Thread {
     private boolean isStop = false;
     private int minBufferSize = -1;
     private AudioCodec mAudioCodec;
+    private OnAudioAACDataAvailable mOnAudioAACDataAvailable = null;
 
     public AudioEncoderHandler(LiveAudioRecord mLiveAudioRecord) {
         this.mLiveAudioRecord = mLiveAudioRecord;
@@ -23,6 +24,12 @@ public class AudioEncoderHandler extends Thread {
         mAudioCodec = new AudioCodec(minBufferSize);
         mAudioCodec.prepareCodec();
 
+    }
+
+    public void setOnAudioAACDataAvailable(OnAudioAACDataAvailable mOnAudioAACDataAvailable) {
+        if(mAudioCodec != null) {
+            mAudioCodec.setOnAudioAACDataAvailable(mOnAudioAACDataAvailable);
+        }
     }
 
     public void stopEncode() {

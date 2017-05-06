@@ -42,6 +42,8 @@ public class VideoCodec {
 
     private MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
 
+    private OnVideoH264DataAvailable dataAvailable = null;
+
     public VideoCodec(int width, int height) {
         this.width = width;
         this.height = height;
@@ -54,6 +56,10 @@ public class VideoCodec {
     public void setWidthAndHeight(int width, int height) {
         this.width = width;
         this.height = height;
+    }
+
+    public void setCodecAvailable(OnVideoH264DataAvailable dataAvailable) {
+        this.dataAvailable = dataAvailable;
     }
 
     public VideoCodec(CodecSurface surface) {
@@ -149,6 +155,9 @@ public class VideoCodec {
 
         } else if (outputBufferId >= 0) {
             ByteBuffer outputBuffer = mediaCodec.getOutputBuffer(outputBufferId);
+            if(dataAvailable != null) {
+                dataAvailable.onVideoCodecAvailable(outputBuffer);
+            }
             mediaCodec.releaseOutputBuffer(outputBufferId, false);
             Log.i("data---", outputBuffer.toString());
         }
@@ -208,6 +217,10 @@ public class VideoCodec {
 
             } else if (outputBufferId >= 0) {
                 ByteBuffer bb = outBuffers[outputBufferId];
+                if(dataAvailable != null) {
+                    dataAvailable.onVideoCodecAvailable(bb);
+
+                }
                 byte[] b = new byte[bb.remaining()];
                 bb.get(b);
                 Log.i("data", b.length + "");

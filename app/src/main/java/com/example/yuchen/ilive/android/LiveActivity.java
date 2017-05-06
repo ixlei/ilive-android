@@ -46,6 +46,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private RenderTexToGLSurface  mRenderTexToGLSurface;
     private RenderTexToSurface renderTexToSurface;
     private AudioEncoderHandler mAudioEncoderHandler = null;
+    private PackerAudioAndVideo mPackerAudioAndVideo = null;
 
     @Override
     public void onPreviewFrame(final byte[] frame, Camera camera) {
@@ -69,6 +70,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         if(cameraLive != null) {
             videoEncoder = new VideoCodec();
+            videoEncoder.setCodecAvailable(mPackerAudioAndVideo.getOnCodecAvailableCallback());
         }
 
         renderTexToSurface = new RenderTexToSurface(videoEncoder);
@@ -94,6 +96,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
             initTexture();
             renderTexToSurface.setSurfaceTextureId(mSurfaceTextureId);
             mRenderTexToGLSurface = new RenderTexToGLSurface(mSurfaceTextureId);
+            mPackerAudioAndVideo = new PackerAudioAndVideo();
 
         }
 
@@ -110,6 +113,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 liveAudioRecord.startRecording();
                 if(liveAudioRecord != null) {
                     mAudioEncoderHandler = new AudioEncoderHandler(liveAudioRecord);
+                    mAudioEncoderHandler.setOnAudioAACDataAvailable(mPackerAudioAndVideo.getOnCodecAvailableCallback());
                     mAudioEncoderHandler.start();
                 }
 
@@ -269,6 +273,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         mCamera.startPreview();
         isPreview = true;
+
         new Thread(new Runnable() {
             @Override
             public void run() {

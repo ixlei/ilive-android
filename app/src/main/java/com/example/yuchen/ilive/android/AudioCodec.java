@@ -31,6 +31,8 @@ public class AudioCodec {
     private boolean isEncoding = false;
     private int adtsLen = 7;
 
+    private OnAudioAACDataAvailable  mOnAudioAACDataAvailable = null;
+
     private MediaCodec.BufferInfo mediaBufferinfo = new MediaCodec.BufferInfo();
 
     public AudioCodec() {
@@ -65,6 +67,11 @@ public class AudioCodec {
         }
 
     }
+
+    public void setOnAudioAACDataAvailable(OnAudioAACDataAvailable onAudioAACDataAvailable) {
+        mOnAudioAACDataAvailable = onAudioAACDataAvailable;
+    }
+
 
     private static MediaCodecInfo selectCodec(String mimeType) {
         int numCodecs = MediaCodecList.getCodecCount();
@@ -119,7 +126,9 @@ public class AudioCodec {
             byte[] audioAccData = new byte[mediaBufferinfo.size + adtsLen];
             outputBuffer.get(audioAccData, adtsLen, mediaBufferinfo.size);
             addADTStoPacket(audioAccData, audioAccData.length);
-
+            if(mOnAudioAACDataAvailable != null) {
+                mOnAudioAACDataAvailable.OnCodeCAliable(audioAccData);
+            }
             Log.i("acc data", audioAccData.length + "");
             Log.i("acc data", outputBuffer.toString());
 
