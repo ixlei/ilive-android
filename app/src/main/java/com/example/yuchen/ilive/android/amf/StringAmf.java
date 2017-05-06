@@ -39,4 +39,8 @@ public class StringAmf implements AmfInfo {
         res.put(value.getBytes());
         return res.array();
     }
+
+    public static int sizeOf(String value, boolean isKey) {
+        return  (isKey ? 0 : 1) + 2 + value.getBytes().length;
+    }
 }

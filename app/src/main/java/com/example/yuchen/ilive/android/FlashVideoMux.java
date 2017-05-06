@@ -1,5 +1,10 @@
 package com.example.yuchen.ilive.android;
 
+import com.example.yuchen.ilive.android.amf.BooleanAmf;
+import com.example.yuchen.ilive.android.amf.MapAmf;
+import com.example.yuchen.ilive.android.amf.NumberAmf;
+import com.example.yuchen.ilive.android.amf.StringAmf;
+
 import java.nio.ByteBuffer;
 
 /**
@@ -132,9 +137,44 @@ public class FlashVideoMux {
         return videoFirstTag;
     }
 
-    public byte[] muxFlvMetadata(int width, int height, int fps, int audioRate, int audioSize, int channelCout) {
-        boolean isStereo = channelCout == 2 ? true : false;
-        return new byte[1];
+    /**
+     * http://blog.csdn.net/yeyumin89/article/details/7932368
+     * amf 数据在flv header后出现
+     * amf 有两个，第一个就是 "onMetaData"
+     * amf 的第二个数一个用数组表示的key-value对
+     * key占用 2 ＋ key.getBytes().length
+     * value 占用 1 + value.getBytes().length
+     * 3bytes 的 end market
+     * @param width video width
+     * @param height
+     * @param fps
+     * @param audioRate
+     * @param audioSize
+     * @param channelCount 声道总数
+     * @return byte
+     */
+    public ByteBuffer muxFlvMetadata(int width, int height, int fps, int audioRate, int audioSize, int channelCount) {
+        boolean isStereo = channelCount == 2 ? true : false;
+        StringAmf firstAmf = new StringAmf("onMetaData", false);
+        MapAmf mapAmf = new MapAmf();
+        mapAmf.put("width", new NumberAmf(width));
+        mapAmf.put("height", new NumberAmf(height));
+        mapAmf.put("framerate", new NumberAmf(fps));
+        // avc
+        mapAmf.put("videocodecid", new NumberAmf(2));
+        mapAmf.put("audiosamplerate", new NumberAmf(audioRate));
+        mapAmf.put("audiosamplesize", new NumberAmf(audioSize));
+
+        mapAmf.put("stereo", new BooleanAmf(isStereo));
+        // audio aac
+        mapAmf.put("audiocodecid", new NumberAmf(10));
+
+        int size = firstAmf.getSize() + mapAmf.getSize();
+
+        ByteBuffer bb = ByteBuffer.allocate(size);
+        bb.put(firstAmf.getBytes());
+        bb.put(mapAmf.getBytes());
+        return bb;
     }
 
     public int getSoundRate(double val) {
