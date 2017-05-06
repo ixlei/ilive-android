@@ -14,7 +14,7 @@ import java.nio.ByteBuffer;
 public class FlashVideoMux {
     /**
      *
-     * @param type enum{0, 1, 2} bit0 -> video, bit1-> audio
+     * @param type enum{0, 1, 2, 3} bit0 -> video, bit1-> audio
      * @return flv headr
      */
 
@@ -27,7 +27,7 @@ public class FlashVideoMux {
         header[2] = 0x56;
 
         header[3] = 0x01; // flv version
-        header[4] = 0x0;
+        header[4] = 0x00;
         if((type & 1) != 0) {
             header[4] |= (header[4] | 0x01);
         }
@@ -69,7 +69,7 @@ public class FlashVideoMux {
         return ByteBuffer.allocate(4).putInt(1680).array();
     }
 
-    public byte[] muxAudioTag(int soundType, double soudRate, int channelCount, int sampleBit, boolean isSequenceHeader) {
+    public byte[] muxAudioTagHeader(int soundType, double soudRate, int channelCount, int sampleBit, boolean isSequenceHeader) {
         byte[] audioHeader = new byte[2];
         //if sound type is not aac, audio header have AACPacketType
         if(soundType != 10) {
@@ -89,11 +89,12 @@ public class FlashVideoMux {
         return audioHeader;
     }
 
+
     public byte[] muxSequenceAudioInfo(int sampleRate, int channelCount) {
         int sampleRateIndex = getSampleIndexAudioRate(sampleRate);
         byte[] sequenceAudioInfo = new byte[2];
         sequenceAudioInfo[0] = (byte) (0x10 | ((sampleRateIndex >> 1) & 0x7));
-        sequenceAudioInfo[1] = (byte) (((sampleRateIndex & 0x1)<<7) | ((channelCount & 0xF) << 3));
+        sequenceAudioInfo[1] = (byte) (((sampleRateIndex & 0x1) <<7) | ((channelCount & 0xF) << 3));
         return sequenceAudioInfo;
     }
 
@@ -103,12 +104,18 @@ public class FlashVideoMux {
         return videoTagHeader;
     }
 
-    public ByteBuffer muxAVCTagHeader(int frametype, int AVCPacketType, int compositionTime) {
+    public ByteBuffer muxAVCTagHeader(int frameType, int AVCPacketType, int compositionTime) {
         ByteBuffer avcTagHeader = ByteBuffer.allocate(5);
-        avcTagHeader.put(muxVideoTagHeader(frametype, 7));
+        avcTagHeader.put(muxVideoTagHeader(frameType, 7));
         int avcPacketTypeAndCompTime = (((AVCPacketType & 0x000000FF) << 24) | (compositionTime & 0x00FFFFFF));
         avcTagHeader.putInt(avcPacketTypeAndCompTime);
         return avcTagHeader;
+    }
+
+    public void writeVideoTag(ByteBuffer buffer, byte[] videoData, int frameType, int AVCPacketType, int compositionTime) {
+        buffer.put(muxAVCTagHeader(frameType, AVCPacketType, compositionTime).array());
+        buffer.put(videoData);
+
     }
 
 
@@ -175,6 +182,11 @@ public class FlashVideoMux {
         bb.put(firstAmf.getBytes());
         bb.put(mapAmf.getBytes());
         return bb;
+    }
+
+    public void writeAudioTag(ByteBuffer buffer, byte[] audioData, double soundRate, int channelCount, int sampleBit, boolean isSequenceHeader) {
+        buffer.put(muxAudioTagHeader(10, soundRate, channelCount, sampleBit, isSequenceHeader));
+        buffer.put(audioData);
     }
 
     public int getSoundRate(double val) {
