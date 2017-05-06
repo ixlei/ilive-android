@@ -155,6 +155,9 @@ public class FlashVideoMux {
     public int getSampleIndexAudioRate(int sampleRate) {
         switch (sampleRate) {
             case 96000: return 0;
+            case 88200: return 1;
+            case 64000: return 2;
+            case 48000: return 3;
             case 44100 : return 4;
             default: return 4;
         }
