@@ -68,6 +68,8 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         liveAudioRecord = new LiveAudioRecord();
 
+        mPackerAudioAndVideo = new PackerAudioAndVideo();
+
         if(cameraLive != null) {
             videoEncoder = new VideoCodec();
             videoEncoder.setCodecAvailable(mPackerAudioAndVideo.getOnCodecAvailableCallback());
@@ -96,7 +98,6 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
             initTexture();
             renderTexToSurface.setSurfaceTextureId(mSurfaceTextureId);
             mRenderTexToGLSurface = new RenderTexToGLSurface(mSurfaceTextureId);
-            mPackerAudioAndVideo = new PackerAudioAndVideo();
 
         }
 

@@ -127,10 +127,10 @@ public class AudioCodec {
             outputBuffer.get(audioAccData, adtsLen, mediaBufferinfo.size);
             addADTStoPacket(audioAccData, audioAccData.length);
             if(mOnAudioAACDataAvailable != null) {
-                mOnAudioAACDataAvailable.OnCodeCAliable(audioAccData);
+                mOnAudioAACDataAvailable.OnAudioCodecAvailable(audioAccData);
             }
-            Log.i("acc data", audioAccData.length + "");
-            Log.i("acc data", outputBuffer.toString());
+//            Log.i("acc data", audioAccData.length + "");
+//            Log.i("acc data", outputBuffer.toString());
 
             mAudioCodec.releaseOutputBuffer(outputBufferId, false);
         }

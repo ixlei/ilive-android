@@ -159,7 +159,7 @@ public class VideoCodec {
                 dataAvailable.onVideoCodecAvailable(outputBuffer);
             }
             mediaCodec.releaseOutputBuffer(outputBufferId, false);
-            Log.i("data---", outputBuffer.toString());
+            //Log.i("data---", outputBuffer.toString());
         }
 
         //}

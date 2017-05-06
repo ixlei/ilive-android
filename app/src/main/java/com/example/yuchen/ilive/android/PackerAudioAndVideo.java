@@ -1,5 +1,7 @@
 package com.example.yuchen.ilive.android;
 
+import android.util.Log;
+
 import java.nio.ByteBuffer;
 
 /**
@@ -17,12 +19,13 @@ public class PackerAudioAndVideo  {
 
         @Override
         public void OnAudioCodecAvailable(byte[] audioData) {
+            Log.i("from packer", audioData.toString() + "----" + audioData.length);
 
         }
 
         @Override
         public void onVideoCodecAvailable(ByteBuffer buffer) {
-
+            Log.i("from packer video", buffer.toString());
         }
     }
 
