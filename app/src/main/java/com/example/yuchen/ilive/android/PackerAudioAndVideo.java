@@ -9,9 +9,19 @@ import java.nio.ByteBuffer;
  */
 
 public class PackerAudioAndVideo  {
+
+    private OnPackerListener mOnPackerListener = new OnPackerListenerCallback();
     private onCodecAvailableCallback mOnCodecAvailableCallback = null;
 
+    public class OnPackerListenerCallback implements OnPackerListener {
+        @Override
+        public void OnPackerCallback(ByteBuffer buffer, int type) {
+            Log.i("from back" + (type == 0 ? " audio" : " video"), buffer.toString());
+        }
+    }
+
     public PackerAudioAndVideo() {
+        //this.mOnPackerListener = mOnPackerListener;
         mOnCodecAvailableCallback = new onCodecAvailableCallback();
     }
 
@@ -19,13 +29,18 @@ public class PackerAudioAndVideo  {
 
         @Override
         public void OnAudioCodecAvailable(byte[] audioData) {
-            Log.i("from packer", audioData.toString() + "----" + audioData.length);
+            ByteBuffer bb = ByteBuffer.allocate(audioData.length);
+            bb.put(audioData);
+            mOnPackerListener.OnPackerCallback(bb, 0);
+
+            //Log.i("from packer", audioData.toString() + "----" + audioData.length);
 
         }
 
         @Override
         public void onVideoCodecAvailable(ByteBuffer buffer) {
-            Log.i("from packer video", buffer.toString());
+            mOnPackerListener.OnPackerCallback(buffer, 1);
+            //Log.i("from packer video", buffer.toString());
         }
     }
 
