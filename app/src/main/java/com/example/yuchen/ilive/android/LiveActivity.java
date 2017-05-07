@@ -24,10 +24,14 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+
+import static android.hardware.Camera.Parameters.PREVIEW_FPS_MAX_INDEX;
+import static android.hardware.Camera.Parameters.PREVIEW_FPS_MIN_INDEX;
 
 /**
  * Created by yuchen on 17/4/27.
@@ -264,6 +268,17 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
             CameraLive.setPreviewSize(mCamera, previewSize, mCamera.getParameters());
         } catch (Exception e) {
 
+        }
+        //fps 15
+        try {
+            CameraLive.setPreviewFpsRange(15, mCamera);
+        } catch (Exception e) {
+            Log.i("camera previewFpsRange", e.getMessage());
+        }
+
+        List<int[]> list = mCamera.getParameters().getSupportedPreviewFpsRange();
+        for(int i = 0; i < list.size(); i++) {
+            Log.i("range", list.get(i)[PREVIEW_FPS_MIN_INDEX] + "-" + list.get(i)[PREVIEW_FPS_MAX_INDEX]);
         }
 
         try {

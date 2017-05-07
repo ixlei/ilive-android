@@ -11,6 +11,9 @@ import android.view.Surface;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.hardware.Camera.Parameters.PREVIEW_FPS_MAX_INDEX;
+import static android.hardware.Camera.Parameters.PREVIEW_FPS_MIN_INDEX;
+
 /**
  * Created by yuchen on 17/4/27.
  */
@@ -115,6 +118,32 @@ public class CameraLive {
             }
         }
         return null;
+    }
+
+    public static void setPreviewFpsRange(int expectedFps, Camera mCamera) {
+        Camera.Parameters parameters = mCamera.getParameters();
+        int[] expectedFpsRange = getPreviewFpsRange(expectedFps, parameters);
+        if(expectedFpsRange.length == 2) {
+            parameters.setPreviewFpsRange(expectedFpsRange[0], expectedFpsRange[1]);
+            mCamera.setParameters(parameters);
+        }
+
+    }
+
+    public static int[] getPreviewFpsRange(int expectedFps, Camera.Parameters parameters) {
+        List<int[]> supportedPreviewFpsRange = parameters.getSupportedPreviewFpsRange();
+        expectedFps *= 1000;
+        int meaure = Integer.MAX_VALUE;
+        int[] expectedFpsRange = supportedPreviewFpsRange.get(0);
+        for(int  i = 1, ii = supportedPreviewFpsRange.size(); i < ii; i++) {
+            int[] range = supportedPreviewFpsRange.get(i);
+            int tempMeaure = Math.abs(range[PREVIEW_FPS_MIN_INDEX] - expectedFps) + Math.abs(range[PREVIEW_FPS_MAX_INDEX] - expectedFps);
+            if(tempMeaure < meaure) {
+                expectedFpsRange = range;
+                meaure = tempMeaure;
+            }
+        }
+        return expectedFpsRange;
     }
 
     public static void setCameraDisplayOrientation(Activity activity,
