@@ -29,10 +29,7 @@ public class VideoCodec {
     private int IFRAME_INTERVAL = 2;
 
     private boolean isRecording = false;
-
     private CodecSurface mInputSurface;
-
-
     private MediaCodec mediaCodec;
 
     private HandlerThread mHandlerThread;
@@ -140,29 +137,28 @@ public class VideoCodec {
         MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
         int outputBufferId = mediaCodec.dequeueOutputBuffer(bufferInfo, 0);
 
-        //if (outputBufferId >= 0) {
         if (outputBufferId == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
             MediaFormat newMediaFormat = mediaCodec.getOutputFormat();
             ByteBuffer SPSByteBuffer = newMediaFormat.getByteBuffer("csd-0");
-            ByteBuffer PSPByteBuffer = newMediaFormat.getByteBuffer("csd-1");
-//            byte[] bb = new byte[4];
-//            SPSByteBuffer.get(bb, 4, 4);
-//            ByteBuffer b = ByteBuffer.wrap(bb);
-//            Log.i("sps start code", b.getInt() + "");
-            Log.i("SPS", SPSByteBuffer.toString());
-            Log.i("psp", PSPByteBuffer.toString());
+            ByteBuffer PPSByteBuffer = newMediaFormat.getByteBuffer("csd-1");
+            Log.i("PPS frame", (SPSByteBuffer.array()[4] & 0x1F) + "");
+            Log.i("pps frame", (PPSByteBuffer.array()[4] & 0x1F) + "");
 
+            dataAvailable.onSPSAndPPSAvailable(SPSByteBuffer.array(), PPSByteBuffer.array());
 
         } else if (outputBufferId >= 0) {
             ByteBuffer outputBuffer = mediaCodec.getOutputBuffer(outputBufferId);
+            ByteBuffer bb = ByteBuffer.allocate(outputBuffer.capacity());
+            Log.i("position", outputBuffer.position() + "-" + outputBuffer.limit() + "");
+            bb.put(outputBuffer);
+            byte[] bby = bb.array();
+            Log.i("frame type", (bby[4] & 0x1F) + "");
+
             if(dataAvailable != null) {
                 dataAvailable.onVideoCodecAvailable(outputBuffer);
             }
             mediaCodec.releaseOutputBuffer(outputBufferId, false);
-            //Log.i("data---", outputBuffer.toString());
         }
-
-        //}
     }
 
 
@@ -213,8 +209,9 @@ public class VideoCodec {
             int outputBufferId = mediaCodec.dequeueOutputBuffer(bufferInfo, 100);
             if(outputBufferId == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                 MediaFormat newMediaFormat = mediaCodec.getOutputFormat();
-                Log.i("cas-0", newMediaFormat + "");
-
+                ByteBuffer SPSByteBuffer = newMediaFormat.getByteBuffer("csd-0");
+                ByteBuffer PPSByteBuffer = newMediaFormat.getByteBuffer("csd-1");
+                dataAvailable.onSPSAndPPSAvailable(SPSByteBuffer.array(), PPSByteBuffer.array());
             } else if (outputBufferId >= 0) {
                 ByteBuffer bb = outBuffers[outputBufferId];
                 if(dataAvailable != null) {

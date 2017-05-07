@@ -8,5 +8,6 @@ import java.nio.ByteBuffer;
  */
 
 public interface OnVideoH264DataAvailable {
+    public void onSPSAndPPSAvailable(byte[] sps, byte[] pps);
     public void onVideoCodecAvailable(ByteBuffer buffer);
 }

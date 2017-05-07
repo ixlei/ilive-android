@@ -112,12 +112,6 @@ public class FlashVideoMux {
         return avcTagHeader;
     }
 
-    public void writeVideoTag(ByteBuffer buffer, byte[] videoData, int frameType, int AVCPacketType, int compositionTime) {
-        buffer.put(muxAVCTagHeader(frameType, AVCPacketType, compositionTime).array());
-        buffer.put(videoData);
-
-    }
-
 
     /**
      *  http://befo.io/4178.html
