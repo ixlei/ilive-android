@@ -3,7 +3,7 @@
 #include <libavfilter/avfilter.h>
 #include "libavcodec/avcodec.h"
 #include <jni.h>
-JNIEXPORT jstring Java_com_example_yuchen_helloworld_MainActivity_avcodecInfo(JNIEnv* env, jobject obj)
+JNIEXPORT jstring Java_com_example_yuchen_ilive_android_LiveActivity_avcodecInfo(JNIEnv* env, jobject obj)
 {
     char info[4000] = { 0 };
     int count = 100;  //输出前100个codec名字
@@ -32,7 +32,7 @@ JNIEXPORT jstring Java_com_example_yuchen_helloworld_MainActivity_avcodecInfo(JN
 
 
 
- JNIEXPORT jstring Java_com_example_yuchen_helloworld_MainActivity_avcodecMsg(JNIEnv* env, jobject obj)
+ JNIEXPORT jstring Java_com_example_yuchen_ilive_android_LiveActivity_avcodecMsg(JNIEnv* env, jobject obj)
 {
     char s[1000] = { 0 };
     sprintf(s, "%s\n", "hello ffmpeg world");

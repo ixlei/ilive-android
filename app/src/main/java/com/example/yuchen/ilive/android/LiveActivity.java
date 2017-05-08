@@ -38,6 +38,20 @@ import static android.hardware.Camera.Parameters.PREVIEW_FPS_MIN_INDEX;
  */
 
 public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Callback,  Camera.PreviewCallback{
+
+    static {
+        System.loadLibrary("avcodec-57");
+        System.loadLibrary("avfilter-6");
+        System.loadLibrary("avformat-57");
+        System.loadLibrary("avutil-55");
+        System.loadLibrary("swresample-2");
+        System.loadLibrary("swscale-4");
+        System.loadLibrary("ffmpeg-jni");
+    }
+
+    public native String avcodecInfo();
+    public native String avcodecMsg();
+
     private CameraLive cameraLive = null;
     private Camera mCamera = null;
 
@@ -65,7 +79,7 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
         setContentView(R.layout.live);
         this.setActionBar();
         Config.context = this;
-
+        Log.i("ffmpeg", avcodecInfo());
 
         //init camera
         cameraLive = new CameraLive();
