@@ -34,19 +34,26 @@ public class ExampleUnitTest {
     @Test
     public void falshVideoTagHeader() {
         ByteBuffer bb = ByteBuffer.allocate(30);
+        ByteBuffer b1 = ByteBuffer.allocate(10);
+        byte[] b = new byte[]{1,2};
+        b1.put(b);
         bb.put((byte)0);
         bb.put((byte)1);
         bb.put((byte)2);
-        bb.position(1);
-        bb.limit(3);
+
+       // b1.put(bb.array());
+        System.out.println(b1);
+
+//        bb.position(1);
+//        bb.limit(3);
 
 //        System.out.println(bb.position() + "_" + bb.capacity() + "_" + bb.limit() + "-" + bb.get(0));
 //
 //        System.out.println(bb.position() + "_" + bb.capacity() + "_" + bb.limit() + "-" + bb.get());
-        byte[] b = new byte[2];
-        bb.get(b);
-        System.out.print(b[0] + "-" + b[1]);
-        System.out.println(b);
+//        byte[] b = new byte[2];
+//        bb.get(b);
+//        System.out.print(b[0] + "-" + b[1]);
+//        System.out.println(b);
 
     }
 

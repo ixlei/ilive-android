@@ -18,6 +18,7 @@ public class PackerAudioAndVideo  {
     private int fps;                        //video fps
     private int audioSampleRate = 44100;    //audio Sample Rate
     private int audioSampleSize;            //audio sample size
+    private int audioSampleBit = 16;
     private int channelCount = 2;           //aac 2 channel
     //video information
 
@@ -29,6 +30,7 @@ public class PackerAudioAndVideo  {
 
     private long mStartTime;                //packer start time
     private int PREVSIZE = 4;               // previous tag size
+    private final int FLV_HEADER_SIZE = 11;
 
 
     private OnPackerListener mOnPackerListener = new OnPackerListenerCallback();
@@ -37,7 +39,7 @@ public class PackerAudioAndVideo  {
 
     public class OnPackerListenerCallback implements OnPackerListener {
         @Override
-        public void OnPackerCallback(ByteBuffer buffer, int type) {
+        public void OnPackerCallback(byte[] buffer, int type) {
             Log.i("from back" + (type == 0 ? " audio" : " video"), buffer.toString());
         }
     }
@@ -63,12 +65,12 @@ public class PackerAudioAndVideo  {
         public void OnAudioCodecAvailable(byte[] audioData) {
             ByteBuffer bb = ByteBuffer.allocate(audioData.length);
             bb.put(audioData);
-            mOnPackerListener.OnPackerCallback(bb, 0);
+            //mOnPackerListener.OnPackerCallback(bb, 0);
         }
 
         @Override
         public void onVideoCodecAvailable(ByteBuffer buffer) {
-            mOnPackerListener.OnPackerCallback(buffer, 1);
+            //mOnPackerListener.OnPackerCallback(buffer, 1);
         }
 
         @Override
@@ -105,30 +107,115 @@ public class PackerAudioAndVideo  {
 
     public void packerFlvHeader() {
         //video and audio
-        byte[] flvHeader = flashVideoMux.muxHeader(3);
-        ByteBuffer buffer = ByteBuffer.allocate(flvHeader.length);
+        byte[] flvHeader = flashVideoMux.muxHeader(flvType);
+        ByteBuffer buffer = ByteBuffer.allocate(flvHeader.length + PREVSIZE);
         buffer.put(flvHeader);
-        mOnPackerListener.OnPackerCallback(buffer, flvTagType.header);
+        buffer.putInt(0x00);  //previous size
+        mOnPackerListener.OnPackerCallback(buffer.array(), FlvTagType.header);
     }
 
     public void packerMetaTag() {
-        ByteBuffer meta = flashVideoMux.muxFlvMetadata(width, height, fps, audioSampleRate, audioSampleSize, channelCount);
-        //meta.array().length
-        mOnPackerListener.OnPackerCallback(meta, flvTagType.flvMeta);
+        byte[] meta = flashVideoMux.muxFlvMetadata(width, height, fps, audioSampleRate, audioSampleSize, channelCount);
+        int size = meta.length + PREVSIZE + FLV_HEADER_SIZE;
+
+        ByteBuffer buffer = ByteBuffer.allocate(size);
+        byte[] headerBuffer = flashVideoMux.muxTagHeader(TagType.script, meta.length, 0, 0, 0);
+        buffer.put(headerBuffer);
+        buffer.put(meta);
+        buffer.putInt(size - PREVSIZE);
+
+        mOnPackerListener.OnPackerCallback(buffer.array(), FlvTagType.flvMeta);
     }
 
     public void packerFirstVideoTag(byte[] sps, byte[] pps) {
-        //flashVideoMux.muxVideoTagHeader()
+        byte[] videoTagHeader = flashVideoMux.muxAVCTagHeader(VideoFrameType.KEY_FRAME, 0, 0);
+        byte[] firstVideoTagInfo = flashVideoMux.muxVideoFirstTag(sps, pps);
+
+        byte[] tagHeader = flashVideoMux.muxTagHeader(TagType.video, videoTagHeader.length + firstVideoTagInfo.length, 0, 0, 0);
+        int dataSize = videoTagHeader.length + firstVideoTagInfo.length + tagHeader.length;
+        int len = dataSize + PREVSIZE;
+        ByteBuffer buffer = ByteBuffer.allocate(len);
+        buffer.put(tagHeader);
+        buffer.put(videoTagHeader);
+        buffer.put(firstVideoTagInfo);
+        buffer.putInt(dataSize);
+
+        mOnPackerListener.OnPackerCallback(buffer.array(), FlvTagType.firstVideoTag);
+    }
+
+    public void packerFirstAudioTag() {
+        byte[] sequenceAudioInfo = flashVideoMux.muxSequenceAudioInfo(audioSampleRate, channelCount);
+        byte[] sequenceAudioTag = flashVideoMux.muxAudioTagHeader(SoundType.AAC, audioSampleRate, channelCount, audioSampleBit, true);
+        byte[] tagHeader = flashVideoMux.muxTagHeader(TagType.audio, sequenceAudioInfo.length + sequenceAudioTag.length, 0, 0, 0);
+        int dataSize = sequenceAudioInfo.length + sequenceAudioTag.length + tagHeader.length;
+        ByteBuffer buffer = ByteBuffer.allocate(dataSize + PREVSIZE);
+        buffer.put(tagHeader);
+        buffer.put(sequenceAudioTag);
+        buffer.put(sequenceAudioInfo);
+        buffer.putInt(dataSize);
+
+        mOnPackerListener.OnPackerCallback(buffer.array(), FlvTagType.firstAudioTag);
+    }
+
+    public void packerVideo(ByteBuffer videoData) {
+        byte[] videoAclData = getVclDataFromACL(videoData);
+
+        int frameType = isKeyframe(videoAclData) ? VideoFrameType.KEY_FRAME : VideoFrameType.INTER_FRAME;
+        byte[] videoTagHeader = flashVideoMux.muxAVCTagHeader(frameType, 0, 0);
+
+        int offsetTime = (int)(System.currentTimeMillis() - mStartTime);
+
+        byte[] tagHeader = flashVideoMux.muxTagHeader(TagType.video, videoTagHeader.length + videoAclData.length, offsetTime, 0, 0);
+        int dataSize = videoTagHeader.length + videoAclData.length + tagHeader.length;
+        int len = dataSize + PREVSIZE;
+        ByteBuffer buffer = ByteBuffer.allocate(len);
+        buffer.put(tagHeader);
+        buffer.put(videoTagHeader);
+        buffer.put(videoAclData);
+        buffer.putInt(dataSize);
+
+        mOnPackerListener.OnPackerCallback(buffer.array(), FlvTagType.videoTag);
+    }
+
+    public void packerAudio(byte[] audioData) {
+        int offsetTime = (int)(System.currentTimeMillis() - mStartTime);
+        byte[] sequenceAudioTag = flashVideoMux.muxAudioTagHeader(SoundType.AAC, audioSampleRate, channelCount, audioSampleBit, true);
+        byte[] tagHeader = flashVideoMux.muxTagHeader(TagType.audio, audioData.length + sequenceAudioTag.length, offsetTime, 0, 0);
+        int dataSize = audioData.length + sequenceAudioTag.length + tagHeader.length;
+        ByteBuffer buffer = ByteBuffer.allocate(dataSize + PREVSIZE);
+        buffer.put(tagHeader);
+        buffer.put(sequenceAudioTag);
+        buffer.put(audioData);
+        buffer.putInt(dataSize);
+
+        mOnPackerListener.OnPackerCallback(buffer.array(), FlvTagType.audioTag);
     }
 
 
-    public class flvTagType {
+    public class FlvTagType {
         public static final int header = 0;
         public static final int flvMeta = 1;
         public static final int firstVideoTag = 2;
         public static final int firstAudioTag = 3;
         public static final int videoTag = 4;
         public static final int audioTag = 5;
+    }
+
+    public class VideoFrameType {
+        public static final int KEY_FRAME = 1;
+        public static final int INTER_FRAME = 2;
+        public static final int DISINTERFRAME = 3;
+    }
+
+    public class TagType {
+        public static final int audio = 0x08;
+        public static final int video = 0x09;
+        public static final int script = 0x12;
+    }
+
+    public class SoundType {
+        public static final int AAC = 10;
+        public static final int MP3 = 2;
     }
 
 

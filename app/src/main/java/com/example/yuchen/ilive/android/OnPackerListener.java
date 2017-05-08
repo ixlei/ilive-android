@@ -7,5 +7,5 @@ import java.nio.ByteBuffer;
  */
 
 public interface OnPackerListener {
-    public void OnPackerCallback(ByteBuffer buffer, int type);
+    public void OnPackerCallback(byte[] buffer, int type);
 }

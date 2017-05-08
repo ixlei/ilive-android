@@ -48,7 +48,7 @@ public class FlashVideoMux {
      * @return
      */
 
-    public ByteBuffer muxTagHeader(int tagType, int dataLength, int timestamp, int timestampExtended, int filter) {
+    public byte[] muxTagHeader(int tagType, int dataLength, int timestamp, int timestampExtended, int filter) {
         ByteBuffer tagHeader = ByteBuffer.allocate(11);
         int headerFirstByte = ((filter << 6) | tagType);
         //frame type and data length
@@ -62,7 +62,7 @@ public class FlashVideoMux {
             tagHeader.put((byte)0x00);
         }
 
-        return tagHeader;
+        return tagHeader.array();
     }
 
     public byte[] convertIntToByte(int value) {
@@ -104,12 +104,12 @@ public class FlashVideoMux {
         return videoTagHeader;
     }
 
-    public ByteBuffer muxAVCTagHeader(int frameType, int AVCPacketType, int compositionTime) {
+    public byte[] muxAVCTagHeader(int frameType, int AVCPacketType, int compositionTime) {
         ByteBuffer avcTagHeader = ByteBuffer.allocate(5);
         avcTagHeader.put(muxVideoTagHeader(frameType, 7));
         int avcPacketTypeAndCompTime = (((AVCPacketType & 0x000000FF) << 24) | (compositionTime & 0x00FFFFFF));
         avcTagHeader.putInt(avcPacketTypeAndCompTime);
-        return avcTagHeader;
+        return avcTagHeader.array();
     }
 
 
@@ -119,8 +119,8 @@ public class FlashVideoMux {
      * @param pps h264 pps
      * @return
      */
-    public ByteBuffer muxVideoFirstTag(byte[] sps, byte[] pps) {
-        ByteBuffer videoFirstTag = ByteBuffer.allocate(11);
+    public byte[] muxVideoFirstTag(byte[] sps, byte[] pps) {
+        ByteBuffer videoFirstTag = ByteBuffer.allocate(11 + sps.length + pps.length);
         //1
         videoFirstTag.put((byte)0x01);
         videoFirstTag.put(sps[1]);
@@ -135,7 +135,7 @@ public class FlashVideoMux {
         videoFirstTag.put((byte)0x01);
         videoFirstTag.putShort((short)pps.length);
         videoFirstTag.put(pps);
-        return videoFirstTag;
+        return videoFirstTag.array();
     }
 
     /**
@@ -154,7 +154,7 @@ public class FlashVideoMux {
      * @param channelCount 声道总数
      * @return byte
      */
-    public ByteBuffer muxFlvMetadata(int width, int height, int fps, int audioRate, int audioSize, int channelCount) {
+    public byte[] muxFlvMetadata(int width, int height, int fps, int audioRate, int audioSize, int channelCount) {
         boolean isStereo = channelCount == 2 ? true : false;
         StringAmf firstAmf = new StringAmf("onMetaData", false);
         MapAmf mapAmf = new MapAmf();
@@ -175,7 +175,7 @@ public class FlashVideoMux {
         ByteBuffer bb = ByteBuffer.allocate(size);
         bb.put(firstAmf.getBytes());
         bb.put(mapAmf.getBytes());
-        return bb;
+        return bb.array();
     }
 
     public void writeAudioTag(ByteBuffer buffer, byte[] audioData, double soundRate, int channelCount, int sampleBit, boolean isSequenceHeader) {
