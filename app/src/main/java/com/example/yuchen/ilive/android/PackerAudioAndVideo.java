@@ -17,7 +17,6 @@ public class PackerAudioAndVideo  {
     private int videocodecid = 7;           //H.264/AVC
     private int fps;                        //video fps
     private int audioSampleRate = 44100;    //audio Sample Rate
-    private int audioSampleSize;            //audio sample size
     private int audioSampleBit = 16;
     private int channelCount = 2;           //aac 2 channel
     //video information
@@ -49,14 +48,16 @@ public class PackerAudioAndVideo  {
         mOnCodecAvailableCallback = new onCodecAvailableCallback();
     }
 
-    public void setVideoMetadata(int width, int height) {
+    public void setVideoMetadata(int width, int height, int fps) {
         this.width = width;
         this.height = height;
         this.fps = fps;
     }
 
-    public void setAudioMetaData() {
-
+    public void setAudioMetaData(int sampleBit, int sampleRate, int channelCount) {
+        audioSampleBit = sampleBit;
+        audioSampleRate = sampleRate;
+        this.channelCount = channelCount;
     }
 
     public class onCodecAvailableCallback implements OnVideoH264DataAvailable, OnAudioAACDataAvailable {
@@ -115,7 +116,7 @@ public class PackerAudioAndVideo  {
     }
 
     public void packerMetaTag() {
-        byte[] meta = flashVideoMux.muxFlvMetadata(width, height, fps, audioSampleRate, audioSampleSize, channelCount);
+        byte[] meta = flashVideoMux.muxFlvMetadata(width, height, fps, audioSampleRate, audioSampleBit, channelCount);
         int size = meta.length + PREVSIZE + FLV_HEADER_SIZE;
 
         ByteBuffer buffer = ByteBuffer.allocate(size);
@@ -125,6 +126,19 @@ public class PackerAudioAndVideo  {
         buffer.putInt(size - PREVSIZE);
 
         mOnPackerListener.OnPackerCallback(buffer.array(), FlvTagType.flvMeta);
+    }
+
+    public void startPacker(byte[] sps, byte[] pps) {
+        packerFlvHeader();
+        packerMetaTag();
+        packerFirstVideoTag(sps, pps);
+        packerFirstAudioTag();
+        mStartTime = System.currentTimeMillis();
+
+    }
+
+    public void packering() {
+
     }
 
     public void packerFirstVideoTag(byte[] sps, byte[] pps) {
@@ -161,7 +175,7 @@ public class PackerAudioAndVideo  {
         byte[] videoAclData = getVclDataFromACL(videoData);
 
         int frameType = isKeyframe(videoAclData) ? VideoFrameType.KEY_FRAME : VideoFrameType.INTER_FRAME;
-        byte[] videoTagHeader = flashVideoMux.muxAVCTagHeader(frameType, 0, 0);
+        byte[] videoTagHeader = flashVideoMux.muxAVCTagHeader(frameType, 1, 0);
 
         int offsetTime = (int)(System.currentTimeMillis() - mStartTime);
 
@@ -179,7 +193,7 @@ public class PackerAudioAndVideo  {
 
     public void packerAudio(byte[] audioData) {
         int offsetTime = (int)(System.currentTimeMillis() - mStartTime);
-        byte[] sequenceAudioTag = flashVideoMux.muxAudioTagHeader(SoundType.AAC, audioSampleRate, channelCount, audioSampleBit, true);
+        byte[] sequenceAudioTag = flashVideoMux.muxAudioTagHeader(SoundType.AAC, audioSampleRate, channelCount, audioSampleBit, false);
         byte[] tagHeader = flashVideoMux.muxTagHeader(TagType.audio, audioData.length + sequenceAudioTag.length, offsetTime, 0, 0);
         int dataSize = audioData.length + sequenceAudioTag.length + tagHeader.length;
         ByteBuffer buffer = ByteBuffer.allocate(dataSize + PREVSIZE);
