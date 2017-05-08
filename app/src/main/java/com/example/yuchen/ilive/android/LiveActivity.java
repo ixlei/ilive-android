@@ -50,7 +50,6 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 
     public native String avcodecInfo();
-    public native String avcodecMsg();
 
     private CameraLive cameraLive = null;
     private Camera mCamera = null;

@@ -33,16 +33,17 @@ public class ExampleUnitTest {
 
     @Test
     public void falshVideoTagHeader() {
-        ByteBuffer bb = ByteBuffer.allocate(30);
-        ByteBuffer b1 = ByteBuffer.allocate(10);
-        byte[] b = new byte[]{1,2};
-        b1.put(b);
-        bb.put((byte)0);
-        bb.put((byte)1);
-        bb.put((byte)2);
-
-       // b1.put(bb.array());
-        System.out.println(b1);
+//        ByteBuffer bb = ByteBuffer.allocate(30);
+//        ByteBuffer b1 = ByteBuffer.allocate(10);
+//        byte[] b = new byte[]{1,2};
+//        b1.put(b);
+//        bb.put((byte)0);
+//        bb.put((byte)1);
+//        bb.put((byte)2);
+//
+//
+//       // b1.put(bb.array());
+//        System.out.println(b1);
 
 //        bb.position(1);
 //        bb.limit(3);
@@ -59,16 +60,14 @@ public class ExampleUnitTest {
 
     @Test
     public void flashVideoConvertIntToByte() {
-        byte[] res = flashVideoMux.convertIntToByte(0);
-        for(int i = 0; i < 4; i++) {
-          //  assertEquals(res[i], 0x00);
-        }
-        res = flashVideoMux.convertIntToByte(18);
-        byte[] expectArr = new byte[] {0x00,0x00, 0x00, 0x12};
-        //assertArrayEquals(res, expectArr);
+        byte[] b = new byte[]{1, 2, 3, 'a', 4};
+        ByteBuffer bb = ByteBuffer.allocate(4);
+        bb.put(b, 1, 2);
+        bb.put((byte)0);
+        System.out.println("dhdhdh");
+        System.out.println(bb.array()[0]);
 
     }
-
 
 
 }
