@@ -25,7 +25,8 @@
   /Users/yuchen/androidProject/ilive-android/app/src/main/jni/include/libavformat/avio.h \
   /Users/yuchen/androidProject/ilive-android/app/src/main/jni/include/libavformat/version.h \
   /Users/yuchen/androidProject/ilive-android/app/src/main/jni/include/libavfilter/avfilter.h \
-  /Users/yuchen/androidProject/ilive-android/app/src/main/jni/include/libavfilter/version.h
+  /Users/yuchen/androidProject/ilive-android/app/src/main/jni/include/libavfilter/version.h \
+  /Users/yuchen/androidProject/ilive-android/app/src/main/jni/include/libavutil/time.h
 
 /Users/yuchen/androidProject/ilive-android/app/src/main/jni/include/libavformat/avformat.h:
 
@@ -78,3 +79,5 @@
 /Users/yuchen/androidProject/ilive-android/app/src/main/jni/include/libavfilter/avfilter.h:
 
 /Users/yuchen/androidProject/ilive-android/app/src/main/jni/include/libavfilter/version.h:
+
+/Users/yuchen/androidProject/ilive-android/app/src/main/jni/include/libavutil/time.h:

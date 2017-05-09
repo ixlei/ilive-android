@@ -149,11 +149,7 @@ public class VideoCodec {
         } else if (outputBufferId >= 0) {
             ByteBuffer outputBuffer = mediaCodec.getOutputBuffer(outputBufferId);
             ByteBuffer bb = ByteBuffer.allocate(outputBuffer.capacity());
-            Log.i("position", outputBuffer.position() + "-" + outputBuffer.limit() + "");
             bb.put(outputBuffer);
-            byte[] bby = bb.array();
-            Log.i("frame type", (bby[4] & 0x1F) + "");
-
             if(dataAvailable != null) {
                 dataAvailable.onVideoCodecAvailable(outputBuffer);
             }

@@ -10,10 +10,22 @@ import java.nio.ByteBuffer;
 
 public class PackerAudioAndVideo  {
 
+    static {
+        System.loadLibrary("avcodec-57");
+        System.loadLibrary("avfilter-6");
+        System.loadLibrary("avformat-57");
+        System.loadLibrary("avutil-55");
+        System.loadLibrary("swresample-2");
+        System.loadLibrary("swscale-4");
+        System.loadLibrary("ffmpeg-jni");
+    }
+
+    public native void pushFlvStream();
+    public native void initFramesQueue(SendQueue sendQueue);
 
     private int flvType = 3;                //video and audio
-    private int width;                      //video width
-    private int height;                     //video height
+    private int width = 640;                //video width
+    private int height = 360;               //video height
     private int videocodecid = 7;           //H.264/AVC
     private int fps;                        //video fps
     private int audioSampleRate = 44100;    //audio Sample Rate
@@ -31,21 +43,25 @@ public class PackerAudioAndVideo  {
     private int PREVSIZE = 4;               // previous tag size
     private final int FLV_HEADER_SIZE = 11;
 
-
     private OnPackerListener mOnPackerListener = new OnPackerListenerCallback();
     private onCodecAvailableCallback mOnCodecAvailableCallback = null;
     private FlashVideoMux flashVideoMux = null;
+    private SendQueue mSendQueue = null;
 
     public class OnPackerListenerCallback implements OnPackerListener {
+        private int len = 0;
         @Override
         public void OnPackerCallback(byte[] buffer, int type) {
-            Log.i("from back" + (type == 0 ? " audio" : " video"), buffer.toString());
+            mSendQueue.addFrames(buffer);
+            Log.i(type + "", buffer.length + "");
         }
     }
 
-    public PackerAudioAndVideo() {
+    public PackerAudioAndVideo(SendQueue mSendQueue) {
+        this.mSendQueue = mSendQueue;
         flashVideoMux = new FlashVideoMux();
-        mOnCodecAvailableCallback = new onCodecAvailableCallback();
+        mOnCodecAvailableCallback = new onCodecAvailableCallback(this);
+        initFramesQueue(mSendQueue);
     }
 
     public void setVideoMetadata(int width, int height, int fps) {
@@ -62,21 +78,30 @@ public class PackerAudioAndVideo  {
 
     public class onCodecAvailableCallback implements OnVideoH264DataAvailable, OnAudioAACDataAvailable {
 
+        private PackerAudioAndVideo mPackerAudioAndVideo = null;
+        public onCodecAvailableCallback(PackerAudioAndVideo mPackerAudioAndVideo) {
+            this.mPackerAudioAndVideo = mPackerAudioAndVideo;
+        }
+
         @Override
         public void OnAudioCodecAvailable(byte[] audioData) {
-            ByteBuffer bb = ByteBuffer.allocate(audioData.length);
-            bb.put(audioData);
-            //mOnPackerListener.OnPackerCallback(bb, 0);
+            mPackerAudioAndVideo.packerAudio(audioData);
         }
 
         @Override
         public void onVideoCodecAvailable(ByteBuffer buffer) {
-            //mOnPackerListener.OnPackerCallback(buffer, 1);
+            mPackerAudioAndVideo.packerVideo(buffer);
         }
 
         @Override
         public void onSPSAndPPSAvailable(byte[] sps, byte[] pps) {
-
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    pushFlvStream();
+                }
+            }).start();
+            mPackerAudioAndVideo.startPacker(sps, pps);
         }
     }
 

@@ -18,6 +18,7 @@ public class SendQueue {
     private BlockingQueue<byte[]> framesItem = new LinkedBlockingQueue<>(number);
 
     public byte[] readPacket(int buffSize) {
+        Log.i("re", buffSize + "");
         synchronized (this) {
             int result = 0;
             ByteBuffer bb = ByteBuffer.allocate(buffSize);

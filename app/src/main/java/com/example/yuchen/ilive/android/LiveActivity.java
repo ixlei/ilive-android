@@ -49,7 +49,11 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
         System.loadLibrary("ffmpeg-jni");
     }
 
-    public native String avcodecInfo();
+    public SendQueue sendQueue = new SendQueue();
+
+
+    public native int init(Emp e);
+    public native int ini();
 
     private CameraLive cameraLive = null;
     private Camera mCamera = null;
@@ -72,25 +76,26 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
         videoEncoder.encode(yv12);
     }
 
+    public class Emp {
+        public  int get() {
+            return 10;
+        }
+    }
+
+
     @Override
     public void onCreate(Bundle saveBundleInstance) {
         super.onCreate(saveBundleInstance);
         setContentView(R.layout.live);
         this.setActionBar();
         Config.context = this;
-        Log.i("ffmpeg", avcodecInfo());
 
         //init camera
         cameraLive = new CameraLive();
 
         liveAudioRecord = new LiveAudioRecord();
 
-        mPackerAudioAndVideo = new PackerAudioAndVideo();
-
-        if(cameraLive != null) {
-            videoEncoder = new VideoCodec();
-            videoEncoder.setCodecAvailable(mPackerAudioAndVideo.getOnCodecAvailableCallback());
-        }
+        Log.i("main", init(new Emp()) + "---" + ini());
 
         renderTexToSurface = new RenderTexToSurface(videoEncoder);
 
@@ -123,6 +128,13 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
             startPreview(width, height);
             CameraInfo cameraInfo = cameraLive.currCameraDeviceInfo;
             Log.i("camera info", cameraInfo.cameraWidth + "," + cameraInfo.cameraHeight);
+            mPackerAudioAndVideo = new PackerAudioAndVideo(sendQueue);
+            mPackerAudioAndVideo.setVideoMetadata(cameraInfo.cameraWidth, cameraInfo.cameraHeight, 15);
+
+            if(cameraLive != null) {
+                videoEncoder = new VideoCodec();
+                videoEncoder.setCodecAvailable(mPackerAudioAndVideo.getOnCodecAvailableCallback());
+            }
 
             videoEncoder.setWidthAndHeight(cameraInfo.cameraWidth, cameraInfo.cameraHeight);
             renderTexToSurface.setVideoSize(cameraInfo.cameraWidth, cameraInfo.cameraHeight);
@@ -145,7 +157,6 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
 
         }
         @Override
