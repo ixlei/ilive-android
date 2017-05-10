@@ -41,6 +41,6 @@ include $(CLEAR_VARS)
 LOCAL_MODULE :=ffmpeg-jni
 LOCAL_SRC_FILES := ffmpeg-jni.c
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/include
-LOCAL_LDLIBS := -llog -lz
+LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog
 LOCAL_SHARED_LIBRARIES := avcodec avfilter avformat avutil swresample swscale
 include $(BUILD_SHARED_LIBRARY)

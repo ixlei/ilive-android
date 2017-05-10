@@ -49,11 +49,10 @@ public class PackerAudioAndVideo  {
     private SendQueue mSendQueue = null;
 
     public class OnPackerListenerCallback implements OnPackerListener {
-        private int len = 0;
         @Override
         public void OnPackerCallback(byte[] buffer, int type) {
             mSendQueue.addFrames(buffer);
-            Log.i(type + "", buffer.length + "");
+            //Log.i(type + "", buffer.length + "");
         }
     }
 
@@ -95,13 +94,19 @@ public class PackerAudioAndVideo  {
 
         @Override
         public void onSPSAndPPSAvailable(byte[] sps, byte[] pps) {
+            mPackerAudioAndVideo.startPacker(sps, pps);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    try {
+                        Thread.sleep(4000);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
                     pushFlvStream();
                 }
             }).start();
-            mPackerAudioAndVideo.startPacker(sps, pps);
         }
     }
 

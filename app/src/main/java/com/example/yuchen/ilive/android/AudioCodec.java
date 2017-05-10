@@ -96,7 +96,7 @@ public class AudioCodec {
         }
 
         int inputBufferId = mAudioCodec.dequeueInputBuffer(1000);
-        Log.i("input id", inputBufferId + "");
+        //Log.i("input id", inputBufferId + "");
         if(inputBufferId >= 0) {
             ByteBuffer inputBuffer = mAudioCodec.getInputBuffer(inputBufferId);
             inputBuffer.clear();

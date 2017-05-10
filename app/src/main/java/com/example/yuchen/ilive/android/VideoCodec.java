@@ -125,7 +125,7 @@ public class VideoCodec {
     }
 
     public void encode(byte[] frames) {
-        int inputBufferId = mediaCodec.dequeueInputBuffer(0);
+        int inputBufferId = mediaCodec.dequeueInputBuffer(1000);
         if(inputBufferId >= 0) {
             ByteBuffer inputBuffer = mediaCodec.getInputBuffer(inputBufferId);
             inputBuffer.clear();
@@ -135,7 +135,7 @@ public class VideoCodec {
 
 
         MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
-        int outputBufferId = mediaCodec.dequeueOutputBuffer(bufferInfo, 0);
+        int outputBufferId = mediaCodec.dequeueOutputBuffer(bufferInfo, 1000);
 
         if (outputBufferId == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
             MediaFormat newMediaFormat = mediaCodec.getOutputFormat();

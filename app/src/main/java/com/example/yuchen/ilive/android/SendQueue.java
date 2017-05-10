@@ -18,7 +18,6 @@ public class SendQueue {
     private BlockingQueue<byte[]> framesItem = new LinkedBlockingQueue<>(number);
 
     public byte[] readPacket(int buffSize) {
-        Log.i("re", buffSize + "");
         synchronized (this) {
             int result = 0;
             ByteBuffer bb = ByteBuffer.allocate(buffSize);
@@ -47,11 +46,13 @@ public class SendQueue {
                 }
 
             }
+            Log.i("nodata", "err");
             return new byte[0];
         }
     }
 
     public void addFrames(byte[] frames) {
+        //Log.i("put frames", frames.length + "");
         try {
             framesItem.put(frames);
             size += frames.length;
