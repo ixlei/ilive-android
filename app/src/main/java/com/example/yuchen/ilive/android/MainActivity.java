@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements TabLayout.onTabCl
         //live
         if(cls == LiveActivity.class) {
             super.onResume();
-            Intent liveIntent = new Intent(MainActivity.this, cls);
+            Intent liveIntent = new Intent(MainActivity.this, ILiveActivity.class);
             liveIntent.putExtra(liveIntentExtraKey, "from main activity");
             startActivity(liveIntent);
             return;

@@ -1,8 +1,14 @@
 package com.example.yuchen.ilive.android;
 
+import android.os.Environment;
 import android.util.Log;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.security.PublicKey;
 
 /**
  * Created by yuchen on 17/5/6.
@@ -49,10 +55,42 @@ public class PackerAudioAndVideo  {
     private SendQueue mSendQueue = null;
 
     public class OnPackerListenerCallback implements OnPackerListener {
+        private File mTestFile;
+        private FileOutputStream mOutStream;
+        private BufferedOutputStream mBuffer = null;
+
+        public OnPackerListenerCallback() {
+//            Log.i("ddddd----", "ddddddhdhsdhs");
+//
+//            String sdcardPath = Environment.getExternalStorageDirectory().toString();
+//            mTestFile = new File(sdcardPath+"/SopCast.flv");
+//            Log.i("path", sdcardPath + "/SopCast.flv");
+//            if(mTestFile.exists()){
+//                mTestFile.delete();
+//            }
+//
+//            try {
+//                mTestFile.createNewFile();
+//                mOutStream = new FileOutputStream(mTestFile);
+//                mBuffer = new BufferedOutputStream(mOutStream);
+//            } catch (Exception e) {
+//                Log.i("ddd", "dddd");
+//                e.printStackTrace();
+//            }
+        }
         @Override
         public void OnPackerCallback(byte[] buffer, int type) {
-            mSendQueue.addFrames(buffer);
-            //Log.i(type + "", buffer.length + "");
+
+//            if (mBuffer != null){
+//                try {
+//                    mBuffer.write(buffer);
+//                    mBuffer.flush();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+            //mSendQueue.addFrames(buffer);
+            Log.i(type + "", buffer.length + "");
         }
     }
 
@@ -76,37 +114,76 @@ public class PackerAudioAndVideo  {
     }
 
     public class onCodecAvailableCallback implements OnVideoH264DataAvailable, OnAudioAACDataAvailable {
-
+        private File mTestFile;
+        private FileOutputStream mOutStream;
+        private BufferedOutputStream mBuffer = null;
         private PackerAudioAndVideo mPackerAudioAndVideo = null;
+
         public onCodecAvailableCallback(PackerAudioAndVideo mPackerAudioAndVideo) {
             this.mPackerAudioAndVideo = mPackerAudioAndVideo;
+            String sdcardPath = Environment.getExternalStorageDirectory().toString();
+            mTestFile = new File(sdcardPath+"/SopCast.flv");
+            if(mTestFile.exists()){
+                mTestFile.delete();
+            }
+
+            try {
+                mTestFile.createNewFile();
+                mOutStream = new FileOutputStream(mTestFile);
+                mBuffer = new BufferedOutputStream(mOutStream);
+            } catch (Exception e) {
+                Log.i("ddd", "dddd");
+                e.printStackTrace();
+            }
         }
 
         @Override
         public void OnAudioCodecAvailable(byte[] audioData) {
+
             mPackerAudioAndVideo.packerAudio(audioData);
         }
 
         @Override
         public void onVideoCodecAvailable(ByteBuffer buffer) {
+            buffer.position(4);
+            byte[] frameBytes = new byte[buffer.limit() - 4];
+            buffer.get(frameBytes);
+            if (mBuffer != null){
+                try {
+                    mBuffer.write(frameBytes);
+                    mBuffer.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             mPackerAudioAndVideo.packerVideo(buffer);
         }
 
         @Override
         public void onSPSAndPPSAvailable(byte[] sps, byte[] pps) {
-            mPackerAudioAndVideo.startPacker(sps, pps);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(4000);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    pushFlvStream();
+            if (mBuffer != null){
+                try {
+                    mBuffer.write(sps);
+                    mBuffer.flush();
+                    mBuffer.write(pps);
+                    mBuffer.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            }).start();
+            }
+            mPackerAudioAndVideo.startPacker(sps, pps);
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        Thread.sleep(4000);
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    pushFlvStream();
+//                }
+//            }).start();
         }
     }
 

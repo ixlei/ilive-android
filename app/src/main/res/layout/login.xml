@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"
+        android:orientation="vertical">
+        <EditText
+            android:id="@+id/userCode"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#fff"
+            android:textColorHint="#fff"
+            android:textColor="#fff"
+            android:hint="@string/login_username_hint" />
+        <EditText
+            android:id="@+id/password"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:textColorHint="#fff"
+            android:backgroundTint="#fff"
+            android:textColor="#fff"
+            android:hint="@string/login_password" />
+        <Button
+            android:id="@+id/loginBtn"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/icon_color_active"
+            android:textColor="#fff"
+            android:textSize="12dp"
+            android:textColorHint="#fff"
+            android:hint="@string/login_button"/>
+        <LinearLayout
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/forgetPassword"
+                android:text="忘记密码？"
+                android:textColor="@color/icon_color_active"
+                android:textSize="15dp"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/register"
+                android:text="注册"
+                android:textColor="@color/icon_color_active"
+                android:textSize="15dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

@@ -10,4 +10,6 @@ public class Config {
     public static Context context = null;
     public static final int CAMERA_FACING_BACK = 0;
     public static final int CAMERA_FACING_FRINT = 1;
+
+    public static final String appConstant = "ilive";
 }

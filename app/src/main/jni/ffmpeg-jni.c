@@ -63,10 +63,6 @@ int read_packet(void *opaque, uint8_t *buf, int buf_size) {
         if(len == buf_size) {
             jbyte* framePointer = (*env)->GetByteArrayElements(env, framesArray, NULL);
             memcpy(buf, framePointer, buf_size);
-            // for(int i = 0; i < 100; i++) {
-            //     LOGI("%02X", buf[i]); 
-            // }
-            //(*env)->DeleteLocalRef(env, framePointer);
         }
         (*env)->DeleteLocalRef(env, framesArray);
     } while(len >= 0);
