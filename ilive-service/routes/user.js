@@ -1,0 +1,9 @@
+'use script';
+const express = require('express');
+const Router = express.Router();
+
+Router.get("/login", (req, res, next) => {
+    res.send("hello world");
+})
+
+module.exports = Router;

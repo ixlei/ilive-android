@@ -9,6 +9,8 @@
   "author": "npm install express --save",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.15.2"
+    "express": "^4.15.2",
+    "express-session": "^1.15.2",
+    "mysql": "^2.13.0"
   }
 }
