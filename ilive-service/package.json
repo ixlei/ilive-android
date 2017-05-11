@@ -1,12 +1,12 @@
 {
-  "name": "ilive-server",
+  "name": "ilive-service",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "npm install express --save",
   "license": "ISC",
   "dependencies": {
     "express": "^4.15.2"
