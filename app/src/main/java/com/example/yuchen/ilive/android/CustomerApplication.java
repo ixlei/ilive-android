@@ -2,6 +2,7 @@ package com.example.yuchen.ilive.android;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
@@ -17,6 +18,7 @@ public class CustomerApplication extends Application {
     private static final String SET_COOKIE_KEY = "Set-Cookie";
     private static final String COOKIE_KEY = "Cookie";
     private static final String COOKIE_USERNAME = "ilive";
+    private static final String CODE = "code";
 
     //请求队列
     private RequestQueue _requestQuene;
@@ -81,5 +83,16 @@ public class CustomerApplication extends Application {
 
     public String getUser(String defaultValue) {
         return _preferences.getString(COOKIE_USERNAME, defaultValue);
+    }
+
+    public void setCode(String code) {
+        SharedPreferences.Editor editor = _preferences.edit();
+        editor.putString(CODE, code);
+        editor.commit();
+
+    }
+
+    public String getCode() {
+        return _preferences.getString(CODE, "");
     }
 }

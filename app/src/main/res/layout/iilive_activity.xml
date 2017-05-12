@@ -13,10 +13,11 @@
         android:layout_height="match_parent"/>
 
     <com.example.yuchen.ilive.android.ui.TopRightWeightedLayout
+        android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="75dp"
         android:gravity="center"
-        android:visibility="invisible"
+        android:visibility="visible"
         android:background="#4d000000"
         android:clipChildren="false"
         android:clipToPadding="false"
@@ -44,6 +45,7 @@
     </com.example.yuchen.ilive.android.ui.TopRightWeightedLayout>
 
     <LinearLayout
+        android:id="@+id/bottomBar"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:background="#4d000000"
@@ -55,10 +57,13 @@
             android:id="@+id/btnRecord"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:visibility="invisible"
+            android:visibility="visible"
             android:background="@mipmap/ic_record_start" />
     </LinearLayout>
-    <include layout="@layout/login" />
+    <include
+        android:visibility="invisible"
+        android:id="@+id/loginAuth"
+        layout="@layout/login" />
     <ProgressBar
         android:id="@+id/progressConnecting"
         style="?android:progressBarStyleSmall"

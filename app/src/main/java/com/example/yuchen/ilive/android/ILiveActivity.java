@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -19,7 +20,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.ParseError;
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.example.yuchen.ilive.android.ui.MultiToggleImageButton;
 import com.laifeng.sopcastsdk.camera.CameraListener;
 import com.laifeng.sopcastsdk.configuration.AudioConfiguration;
@@ -33,6 +42,14 @@ import com.laifeng.sopcastsdk.ui.CameraLivingView;
 import com.laifeng.sopcastsdk.utils.SopCastLog;
 import com.laifeng.sopcastsdk.video.effect.GrayEffect;
 import com.laifeng.sopcastsdk.video.effect.NullEffect;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.w3c.dom.Text;
+
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static android.view.View.INVISIBLE;
 import static com.laifeng.sopcastsdk.constant.SopCastConstant.TAG;
@@ -60,7 +77,7 @@ public class ILiveActivity  extends Activity{
     private int mCurrentBps;
     private Dialog mUploadDialog;
     private EditText mAddressET;
-    private int state = 0;
+    private int state = 1;
     private CustomerApplication customerApplication;
     private RequestQueue queue;
 
@@ -69,12 +86,28 @@ public class ILiveActivity  extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.iilive_activity);
         customerApplication = (CustomerApplication) getApplication();
+        initUi();
         initEffects();
         initViews();
         initListeners();
         initLiveView();
+        initQueue();
         initRtmpAddressDialog();
+        bindLoginEvent();
 
+    }
+
+    public void initUi() {
+        String code = customerApplication.getCode();
+        if(code.equals("")) {
+            Log.i("init", "uiuiuii");
+            View bottomBar = findViewById(R.id.bottomBar);
+            View topBar = findViewById(R.id.topBar);
+            View loginAuth = findViewById(R.id.loginAuth);
+            topBar.setVisibility(INVISIBLE);
+            bottomBar.setVisibility(INVISIBLE);
+            loginAuth.setVisibility(View.VISIBLE);
+        }
     }
 
     private void initQueue() {
@@ -145,7 +178,12 @@ public class ILiveActivity  extends Activity{
                     mLFLiveView.stop();
                     isRecording = false;
                 } else {
-                    String uploadUrl = "rtmp://192.168.2.1:1935/ilive/test";
+                    String code = customerApplication.getCode();
+                    if(code.equals("")) {
+                        Toast.makeText(ILiveActivity.this, "重新登陆", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    String uploadUrl = "rtmp://192.168.2.1:1935/ilive/" + code;
                     mRtmpSender.setAddress(uploadUrl);
                     mProgressConnecting.setVisibility(View.VISIBLE);
                     Toast.makeText(ILiveActivity.this, "start connecting", Toast.LENGTH_SHORT).show();
@@ -158,45 +196,7 @@ public class ILiveActivity  extends Activity{
     }
 
     private void initRtmpAddressDialog() {
-//        LayoutInflater inflater = getLayoutInflater();
-//        View playView = inflater.inflate(R.layout.address_dialog,(ViewGroup) findViewById(R.id.dialog));
-//        mAddressET = (EditText) playView.findViewById(R.id.address);
-//        Button okBtn = (Button) playView.findViewById(R.id.ok);
-//        Button cancelBtn = (Button) playView.findViewById(R.id.cancel);
-//        AlertDialog.Builder uploadBuilder = new AlertDialog.Builder(this);
-//        uploadBuilder.setTitle("Upload Address");
-//        uploadBuilder.setView(playView);
-//        mUploadDialog = uploadBuilder.create();
-//        okBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                String uploadUrl = mAddressET.getText().toString();
-//                if(TextUtils.isEmpty(uploadUrl)) {
-//                    Toast.makeText(ILiveActivity.this, "Upload address is empty!", Toast.LENGTH_SHORT).show();
-//                } else {
-//                    mRtmpSender.setAddress(uploadUrl);
-//                    mProgressConnecting.setVisibility(View.VISIBLE);
-//                    Toast.makeText(ILiveActivity.this, "start connecting", Toast.LENGTH_SHORT).show();
-//                    mRecordBtn.setBackgroundResource(R.mipmap.ic_record_stop);
-//                    mRtmpSender.connect();
-//                    isRecording = true;
-//                }
-//                mUploadDialog.dismiss();
-//            }
-//        });
-//        cancelBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mUploadDialog.dismiss();
-//            }
-//        });
-//        String uploadUrl = "rtmp://192.168.2.1:1935/ilive/test";
-//        mRtmpSender.setAddress(uploadUrl);
-//        mProgressConnecting.setVisibility(View.VISIBLE);
-//        Toast.makeText(ILiveActivity.this, "start connecting", Toast.LENGTH_SHORT).show();
-//        mRecordBtn.setBackgroundResource(R.mipmap.ic_record_stop);
-//        mRtmpSender.connect();
-//        isRecording = true;
+
     }
 
     private void initLiveView() {
@@ -274,7 +274,115 @@ public class ILiveActivity  extends Activity{
 
     public void bindLoginEvent() {
         TextView register = (TextView) findViewById(R.id.register);
-        Button button = (Button)findViewById(R.id.loginBtn);
+        final Button btn = (Button)findViewById(R.id.loginBtn);
+        if(state == 1) {
+            register.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    state = 1;
+                    TextView forgetPassword = (TextView) findViewById(R.id.forgetPassword);
+                    forgetPassword.setVisibility(INVISIBLE);
+                    TextView t = (TextView) findViewById(R.id.register);
+                    t.setText("登陆");
+                    btn.setText("注册");
+                }
+            });
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    EditText usernameView = (EditText) findViewById(R.id.userCode);
+                    EditText passwordView = (EditText) findViewById(R.id.password);
+                    final String username = usernameView.getText().toString();
+                    final String password = passwordView.getText().toString();
+
+                    if (username.equals("")) {
+                        Toast.makeText(ILiveActivity.this, "用户名不能为空", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (password.equals("")) {
+                        Toast.makeText(ILiveActivity.this, "密码不能为空", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    String url = "http://192.168.2.1:8001/user/login";
+                    JSONObject params = new JSONObject();
+                    try {
+                        params.put("nickname", username);
+                        params.put("password", password);
+                    } catch (JSONException e) {
+                        Log.i("params", "error");
+                        return;
+                    }
+
+                    JsonObjectRequest loginReq = new JsonObjectRequest(Request.Method.POST, url, params, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                int ret = (Integer)response.get("ret");
+                                if(ret == 0) {
+                                    int code = (Integer) response.get("code");
+
+                                    StringBuilder sb = new StringBuilder();
+                                    sb.append("");
+                                    sb.append(code);
+                                    String codeString = sb.toString();
+
+                                    customerApplication.setCode(codeString);
+
+                                    Toast.makeText(ILiveActivity.this, "登陆成功", Toast.LENGTH_SHORT).show();
+
+                                    View loginAuth = findViewById(R.id.loginAuth);
+                                    loginAuth.setVisibility(INVISIBLE);
+                                    View bottomBar = findViewById(R.id.bottomBar);
+                                    bottomBar.setVisibility(View.VISIBLE);
+                                    View topBar = findViewById(R.id.topBar);
+                                    topBar.setVisibility(View.VISIBLE);
+
+
+                                    //HashMap<String, String> header = new ObjectMapper().readValue(response.getJSONObject("headers"), HashMap.class);
+                                    //customerApplication.addSessionCookie(header);
+                                }
+                            } catch (JSONException e) {
+                                Toast.makeText(ILiveActivity.this, "参数错误", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(ILiveActivity.this, "错误，稍后重试", Toast.LENGTH_SHORT).show();
+                            Log.i("error", error.getMessage());
+                        }
+                    }) {
+//                        @Override
+//                        protected Map<String, String> getParams() {
+//                            Map<String, String> params = new HashMap<>();
+//                            params.put("nickname", username);
+//                            params.put("password", password);
+//                            return params;
+//                        }
+                        @Override
+                        protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+                            try {
+                                String jsonString = new String(response.data,
+                                        HttpHeaderParser.parseCharset(response.headers, PROTOCOL_CHARSET));
+                                JSONObject jsonResponse = new JSONObject(jsonString);
+                                jsonResponse.put("headers", new JSONObject(response.headers));
+                                return Response.success(jsonResponse,
+                                        HttpHeaderParser.parseCacheHeaders(response));
+                            } catch (UnsupportedEncodingException e) {
+                                return Response.error(new ParseError(e));
+                            } catch (JSONException je) {
+                                return Response.error(new ParseError(je));
+                            }
+                        }
+                    };
+                    if(queue != null) {
+                        queue.add(loginReq);
+                    }
+                }
+            });
+        }
         if(state == 1) {
             TextView forgetPassword = (TextView) findViewById(R.id.forgetPassword);
             forgetPassword.setVisibility(INVISIBLE);

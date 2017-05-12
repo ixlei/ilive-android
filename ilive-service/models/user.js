@@ -37,7 +37,7 @@ module.exports = {
                 connection.query(sql, (err, results, fields) => {
                     connection.release();
                     if (err) {
-                        reject({ ret: 2, type: 'select error' });
+                        reject({ ret: 2, type: 'select error', error: err });
                         return;
                     }
                     resolve({

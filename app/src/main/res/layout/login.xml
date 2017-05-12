@@ -39,7 +39,7 @@
             android:textColorHint="#fff"
             android:hint="@string/login_button"/>
         <LinearLayout
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
