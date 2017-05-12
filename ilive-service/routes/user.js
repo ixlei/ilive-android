@@ -6,6 +6,7 @@ const userDb = require('../models/user.js');
 
 Router.post("/login", (req, res, next) => {
     const { nickname, password } = req.body;
+    console.log(JSON.stringify(req.session));
     userDb.checkUser(nickname)
         .then((data) => {
             res.json(data);

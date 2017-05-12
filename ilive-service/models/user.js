@@ -82,5 +82,41 @@ module.exports = {
                 })
             });
         });
+    },
+    generatorCode(uid, code) {
+        return new Promise((resolve, reject) => {
+            if (pool && typeof pool.getConnection != 'function') {
+                reject({
+                    ret: 1,
+                    type: "error"
+                });
+                return;
+            }
+            pool.getConnection((err, connection) => {
+                if (err) {
+                    reject({
+                        ret: 1,
+                        type: 'get conntion error',
+                    });
+                    return;
+                }
+                const sql = 'insert into livecode set ?';
+                connection.query(sql, { uid, code }, (err, results, fields) => {
+                    connection.release();
+                    if (err) {
+                        reject({
+                            ret: 2,
+                            type: 'insert error'
+                        });
+                        return;
+                    }
+                    resolve({
+                        ret: 0,
+                        type: 'success',
+                        results
+                    });
+                })
+            });
+        });
     }
 }
