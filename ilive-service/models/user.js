@@ -30,7 +30,10 @@ module.exports = {
                     });
                     return;
                 }
-                const sql = 'select * from user where nickname = ' + connection.escape(code);
+                const sql = 'select nickname, password, code ' +
+                    'from user left join livecode on user.uid = livecode.uid ' +
+                    'where nickname = ' + connection.escape(code);
+
                 connection.query(sql, (err, results, fields) => {
                     connection.release();
                     if (err) {
@@ -70,7 +73,8 @@ module.exports = {
                     if (err) {
                         reject({
                             ret: 2,
-                            type: 'insert error'
+                            type: 'insert user error',
+                            error: err
                         });
                         return;
                     }
@@ -106,7 +110,8 @@ module.exports = {
                     if (err) {
                         reject({
                             ret: 2,
-                            type: 'insert error'
+                            type: 'insert code err',
+                            error: err
                         });
                         return;
                     }
