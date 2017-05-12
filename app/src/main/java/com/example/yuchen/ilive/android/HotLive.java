@@ -7,8 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.LinearLayout;
 import android.widget.TableLayout;
 
+import com.example.yuchen.ilive.android.example.widget.media.IRenderView;
 import com.example.yuchen.ilive.android.example.widget.media.IjkVideoView;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
@@ -24,20 +26,27 @@ public class HotLive extends Fragment {
                              ViewGroup container, Bundle saveInstanceState) {
 
         View view = layoutInflater.inflate(R.layout.hot_live, container, false);
-//        WebView webView = (WebView)view.findViewById(R.id.webView);
         final IjkVideoView videoView = (IjkVideoView) view.findViewById(R.id.video_view);
-        // init player
         IjkMediaPlayer.loadLibrariesOnce(null);
         IjkMediaPlayer.native_profileBegin("libijkplayer.so");
-        videoView.setHudView((TableLayout) view.findViewById(R.id.hud_view));
-        videoView.setVideoURI(Uri.parse("rtmp://192.168.2.1:1935/ilive/12195071"));
+        TableLayout tableLayout = (TableLayout) view.findViewById(R.id.hud_view);
+        tableLayout.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
+                TableLayout.LayoutParams.MATCH_PARENT));
+
+        videoView.setHudView(tableLayout);
+
+        //videoView.toggleAspectRatio();
+        videoView.set();
+        videoView.setScaleX(1.1F);
+        videoView.setVideoURI(Uri.parse("rtmp://192.168.2.1:1935/ilive/test1"));
         videoView.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(IMediaPlayer mp) {
+
                 videoView.start();
+
             }
         });
-        //webView.loadUrl("http://192.168.2.1:8000");
         return view;
     }
 }

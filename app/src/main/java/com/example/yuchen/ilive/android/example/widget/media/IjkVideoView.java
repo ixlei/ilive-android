@@ -163,12 +163,10 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
 
         mVideoWidth = 0;
         mVideoHeight = 0;
-        // REMOVED: getHolder().addCallback(mSHCallback);
-        // REMOVED: getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
         setFocusable(true);
         setFocusableInTouchMode(true);
         requestFocus();
-        // REMOVED: mPendingSubtitleTracks = new Vector<Pair<InputStream, MediaFormat>>();
         mCurrentState = STATE_IDLE;
         mTargetState = STATE_IDLE;
 
@@ -197,6 +195,8 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
             return;
 
         mRenderView = renderView;
+        toggleAspectRatio();
+        //mRenderView.setAspectRatio(IRenderView.AR_ASPECT_FILL_PARENT);
         renderView.setAspectRatio(mCurrentAspectRatio);
         if (mVideoWidth > 0 && mVideoHeight > 0)
             renderView.setVideoSize(mVideoWidth, mVideoHeight);
@@ -205,8 +205,8 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
 
         View renderUIView = mRenderView.getView();
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT,
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.MATCH_PARENT,
                 Gravity.CENTER);
         renderUIView.setLayoutParams(lp);
         addView(renderUIView);
@@ -227,6 +227,7 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
                     renderView.setVideoSize(mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight());
                     renderView.setVideoSampleAspectRatio(mMediaPlayer.getVideoSarNum(), mMediaPlayer.getVideoSarDen());
                     renderView.setAspectRatio(mCurrentAspectRatio);
+                    //mRenderView.setAspectRatio(IRenderView.AR_ASPECT_FILL_PARENT);
                 }
                 setRenderView(renderView);
                 break;
@@ -430,10 +431,11 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
                 seekTo(seekToPosition);
             }
             if (mVideoWidth != 0 && mVideoHeight != 0) {
-                //Log.i("@@@@", "video size: " + mVideoWidth +"/"+ mVideoHeight);
-                // REMOVED: getHolder().setFixedSize(mVideoWidth, mVideoHeight);
+
                 if (mRenderView != null) {
-                    mRenderView.setVideoSize(mVideoWidth, mVideoHeight);
+                    //mRenderView.setAspectRatio(IRenderView.AR_ASPECT_FILL_PARENT);
+                    Log.i("set width", mVideoWidth + "_" + mVideoHeight);
+                    //mRenderView.setVideoSize(mVideoWidth, mVideoHeight);
                     mRenderView.setVideoSampleAspectRatio(mVideoSarNum, mVideoSarDen);
                     if (!mRenderView.shouldWaitForResize() || mSurfaceWidth == mVideoWidth && mSurfaceHeight == mVideoHeight) {
                         // We didn't actually change the size (it was already at the size
@@ -670,6 +672,7 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
 
             mSurfaceWidth = w;
             mSurfaceHeight = h;
+            Log.i("Surface width", mSurfaceWidth + "-" + mSurfaceHeight);
             boolean isValidState = (mTargetState == STATE_PLAYING);
             boolean hasValidSize = !mRenderView.shouldWaitForResize() || (mVideoWidth == w && mVideoHeight == h);
             if (mMediaPlayer != null && isValidState && hasValidSize) {
@@ -915,14 +918,21 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
             IRenderView.AR_4_3_FIT_PARENT};
     private int mCurrentAspectRatioIndex = 0;
     private int mCurrentAspectRatio = s_allAspectRatio[0];
+    public int set() {
+        mRenderView.setAspectRatio(IRenderView.AR_MATCH_PARENT);
+        return 1;
+    }
 
     public int toggleAspectRatio() {
         mCurrentAspectRatioIndex++;
         mCurrentAspectRatioIndex %= s_allAspectRatio.length;
 
         mCurrentAspectRatio = s_allAspectRatio[mCurrentAspectRatioIndex];
+        Log.i("dddd", mCurrentAspectRatioIndex  + "");
         if (mRenderView != null)
+            Log.i("dddd", mCurrentAspectRatio + "");
             mRenderView.setAspectRatio(mCurrentAspectRatio);
+            //mRenderView.setAspectRatio(IRenderView.AR_ASPECT_FILL_PARENT);
         return mCurrentAspectRatio;
     }
 
