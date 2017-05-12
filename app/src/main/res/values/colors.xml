@@ -7,4 +7,5 @@
     <color name="tab_border">#e8e5e5</color>
     <color name="tab_color">#d0d0d0</color>
     <color name="icon_color_active">#0296DC</color>
+    <color name="ijk_transparent_dark">#77000000</color>
 </resources>
