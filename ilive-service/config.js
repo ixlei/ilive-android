@@ -1,10 +1,10 @@
 'use script';
 
-exports = {
+module.exports = {
     "mysql": {
         "host": "127.0.0.1",
         "user": "root",
         "password": "",
-        "db": "ilive"
+        "database": "ilive",
     }
 };
