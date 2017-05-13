@@ -42,11 +42,75 @@ module.exports = {
                         result: results,
                     });
                 })
-
             })
         })
     },
-    updateNum() {
+    updateNum(type, code) {
+        return new Promise((resolve, reject) => {
+            pool.getConnection((err, connection) => {
+                if (err) {
+                    reject({ ret: 1, results: 'get connection error' });
+                    return;
+                }
 
+                let sql;
+                if (type == 0) { //add
+                    sql = 'update liveroom ' +
+                        'left join livecode ' +
+                        'on liveroom.code_id = livecode.id ' +
+                        'set audience = audience + 1 ' +
+                        'where state = 1';
+                } else {
+                    sql = 'update liveroom ' +
+                        'left join livecode ' +
+                        'on liveroom.code_id = livecode.id ' +
+                        'set audience = audience - 1 ' +
+                        'where state = 1 ' +
+                        'and audience > 0 ';
+                }
+                connection.query(sql, (err, results, fields) => {
+                    if (err) {
+                        reject({ ret: 1, results: 'update audience error' });
+                        return;
+                    }
+                    resolve({
+                        ret: 0,
+                        results,
+                    })
+                })
+            })
+        });
+    },
+    liveEnd(code) {
+        return new Promise((resolve, reject) => {
+            pool.getConnection((err, connection) => {
+                if (err) {
+                    reject({ ret: 1, results: err });
+                    return;
+                }
+                const sql = 'update liveroom ' +
+                    'left join livecode ' +
+                    'on liveroom.code_id = livecode.id ' +
+                    'set state = 0, end_date = ' + getMysqlTimestampFormat(new Date())
+                ' where state = 1';
+                connection.query(sql, (err, results, fields) => {
+                    if (err) {
+                        reject({ ret: 1, results: err });
+                        return;
+                    }
+                    resolve({ ret: 0, results });
+                });
+            })
+        })
     }
+};
+
+function twoDigits(d) {
+    if (0 <= d && d < 10) return "0" + d.toString();
+    if (-10 < d && d < 0) return "-0" + (-1 * d).toString();
+    return d.toString();
+}
+
+function getMysqlTimestampFormat(date) {
+    return date.getFullYear() + "-" + twoDigits(1 + date.getMonth()) + "-" + twoDigits(date.getDate()) + " " + twoDigits(date.getHours()) + ":" + twoDigits(date.getMinutes()) + ":" + twoDigits(date.getSeconds());
 }
