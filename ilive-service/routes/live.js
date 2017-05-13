@@ -85,4 +85,20 @@ Router.post('/publishdone', (req, res, next) => {
         })
 });
 
+Router.get('/hotlive/:index', (req, res, next) => {
+    const index = req.params.index || 0;
+    const pageNumber = 20;
+    live.getHotLive(index, pageNumber)
+        .then((data) => {
+            if (data && data.ret == 0) {
+                res.json({ ret: 0, results: data.results });
+                return;
+            }
+            res.json({ ret: 1, results: data.results })
+        })
+        .catch((err) => {
+            res.json({ res: 2, results: err.results });
+        })
+});
+
 module.exports = Router;

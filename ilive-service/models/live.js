@@ -104,6 +104,32 @@ module.exports = {
                 });
             })
         })
+    },
+    getHotLive(index, number) {
+        return new Promise((resolve, reject) => {
+            pool.getConnection((err, connection) => {
+                if (err) {
+                    reject({ ret: 1, results: err });
+                    return;
+                }
+                const sql = 'select nickname, code, audience, total ' +
+                    'from liveroom, livecode, user, ' +
+                    '(select count(code_id) as total from liveroom where state = 1) as page ' +
+                    'where state = 1 ' +
+                    'and liveroom.code_id = livecode.id ' +
+                    'and livecode.uid = user.uid ' +
+                    'order by audience desc ' +
+                    'limit ' + index + ', ' + number;
+                console.log(sql);
+                connection.query(sql, (err, results, fields) => {
+                    if (err) {
+                        reject({ ret: 1, results: err });
+                        return;
+                    }
+                    resolve({ ret: 0, results });
+                })
+            });
+        });
     }
 };
 
