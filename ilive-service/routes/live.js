@@ -71,7 +71,18 @@ Router.post('/playdone', (req, res, next) => {
 });
 
 Router.post('/publishdone', (req, res, next) => {
-    res.sendStatus(200);
-})
+    const { code } = req.body;
+    live.liveEnd(code)
+        .then((data) => {
+            if (data && data.ret == 0) {
+                res.json({ ret: 0, results: 'success' });
+                return;
+            }
+            res.json({ ret: 1, results: 'error' });
+        })
+        .catch((err) => {
+            res.json({ ret: 2, results: err.results });
+        })
+});
 
 module.exports = Router;
