@@ -432,8 +432,8 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
 
                 if (mRenderView != null) {
                     //mRenderView.setAspectRatio(IRenderView.AR_ASPECT_FILL_PARENT);
-                    Log.i("set width", mVideoWidth + "_" + mVideoHeight);
-                    //mRenderView.setVideoSize(mVideoWidth, mVideoHeight);
+                    //Log.i("set width", mVideoWidth + "_" + mVideoHeight);
+                    mRenderView.setVideoSize(mVideoWidth, mVideoHeight);
                     mRenderView.setVideoSampleAspectRatio(mVideoSarNum, mVideoSarDen);
                     if (!mRenderView.shouldWaitForResize() || mSurfaceWidth == mVideoWidth && mSurfaceHeight == mVideoHeight) {
                         // We didn't actually change the size (it was already at the size
@@ -670,7 +670,6 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
 
             mSurfaceWidth = w;
             mSurfaceHeight = h;
-            Log.i("Surface width", mSurfaceWidth + "-" + mSurfaceHeight);
             boolean isValidState = (mTargetState == STATE_PLAYING);
             boolean hasValidSize = !mRenderView.shouldWaitForResize() || (mVideoWidth == w && mVideoHeight == h);
             if (mMediaPlayer != null && isValidState && hasValidSize) {

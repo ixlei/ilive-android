@@ -2,17 +2,11 @@ package com.example.yuchen.ilive.android;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -100,7 +94,6 @@ public class ILiveActivity  extends Activity{
     public void initUi() {
         String code = customerApplication.getCode();
         if(code.equals("")) {
-            Log.i("init", "uiuiuii");
             View bottomBar = findViewById(R.id.bottomBar);
             View topBar = findViewById(R.id.topBar);
             View loginAuth = findViewById(R.id.loginAuth);

@@ -46,6 +46,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha9'
     testCompile 'junit:junit:4.12'
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
     compile 'com.android.volley:volley:1.0.0'
     compile 'com.zhy:autolayout:1.4.5'
     compile 'com.laifeng:sopcast-sdk:1.0.4'

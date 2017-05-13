@@ -112,7 +112,8 @@ module.exports = {
                     reject({ ret: 1, results: err });
                     return;
                 }
-                const sql = 'select nickname, code, audience, total ' +
+                const sql = 'select nickname, code, audience, total, ' +
+                    "'http:\/\/192.168.2.1/liveavatar.jpeg' as liveAvatar " +
                     'from liveroom, livecode, user, ' +
                     '(select count(code_id) as total from liveroom where state = 1) as page ' +
                     'where state = 1 ' +

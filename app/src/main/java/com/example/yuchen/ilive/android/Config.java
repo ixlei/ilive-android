@@ -12,4 +12,7 @@ public class Config {
     public static final int CAMERA_FACING_FRINT = 1;
 
     public static final String appConstant = "ilive";
+
+    public static final String livePlayerIntentExtraKey = "COM_EXAMPLE_YUCHEN_ILIVE_ANDROID_HOTLIVE_LIVE_PLAYER";
+
 }
