@@ -12,7 +12,11 @@
     "body-parser": "^1.17.1",
     "express": "^4.15.2",
     "express-session": "^1.15.2",
+    "morgan": "^1.8.1",
     "multer": "^1.3.0",
     "mysql": "^2.13.0"
+  },
+  "devDependencies": {
+    "pm2": "^2.4.6"
   }
 }

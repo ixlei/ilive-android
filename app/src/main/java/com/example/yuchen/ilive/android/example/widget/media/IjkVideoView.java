@@ -196,7 +196,6 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
 
         mRenderView = renderView;
         toggleAspectRatio();
-        //mRenderView.setAspectRatio(IRenderView.AR_ASPECT_FILL_PARENT);
         renderView.setAspectRatio(mCurrentAspectRatio);
         if (mVideoWidth > 0 && mVideoHeight > 0)
             renderView.setVideoSize(mVideoWidth, mVideoHeight);
@@ -227,7 +226,6 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
                     renderView.setVideoSize(mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight());
                     renderView.setVideoSampleAspectRatio(mMediaPlayer.getVideoSarNum(), mMediaPlayer.getVideoSarDen());
                     renderView.setAspectRatio(mCurrentAspectRatio);
-                    //mRenderView.setAspectRatio(IRenderView.AR_ASPECT_FILL_PARENT);
                 }
                 setRenderView(renderView);
                 break;
@@ -918,9 +916,8 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
             IRenderView.AR_4_3_FIT_PARENT};
     private int mCurrentAspectRatioIndex = 0;
     private int mCurrentAspectRatio = s_allAspectRatio[0];
-    public int set() {
-        mRenderView.setAspectRatio(IRenderView.AR_MATCH_PARENT);
-        return 1;
+    public void  setAspectRatio(int aspectRatio) {
+        mRenderView.setAspectRatio(aspectRatio);
     }
 
     public int toggleAspectRatio() {
@@ -928,11 +925,8 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
         mCurrentAspectRatioIndex %= s_allAspectRatio.length;
 
         mCurrentAspectRatio = s_allAspectRatio[mCurrentAspectRatioIndex];
-        Log.i("dddd", mCurrentAspectRatioIndex  + "");
         if (mRenderView != null)
-            Log.i("dddd", mCurrentAspectRatio + "");
             mRenderView.setAspectRatio(mCurrentAspectRatio);
-            //mRenderView.setAspectRatio(IRenderView.AR_ASPECT_FILL_PARENT);
         return mCurrentAspectRatio;
     }
 

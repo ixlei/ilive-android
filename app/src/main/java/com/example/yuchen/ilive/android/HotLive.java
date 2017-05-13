@@ -35,8 +35,7 @@ public class HotLive extends Fragment {
 
         videoView.setHudView(tableLayout);
 
-        //videoView.toggleAspectRatio();
-        videoView.set();
+        videoView.setAspectRatio(IRenderView.AR_MATCH_PARENT);
         videoView.setScaleX(1.1F);
         videoView.setVideoURI(Uri.parse("rtmp://192.168.2.1:1935/ilive/test1"));
         videoView.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
