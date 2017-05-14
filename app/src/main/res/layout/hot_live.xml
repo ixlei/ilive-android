@@ -7,9 +7,17 @@
         android:id="@+id/hotLiveList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp">
-
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="4dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="20dp"
+        android:layout_marginRight="4dp">
     </ListView>
+    <TextView
+        android:id="@+id/noneTips"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="invisible"
+        android:text="什么都没有，去直播吧！" />
 </RelativeLayout>

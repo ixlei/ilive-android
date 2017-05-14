@@ -12,6 +12,7 @@ Router.post('/push_auth', (req, res, next) => {
 
 Router.post('/publish', (req, res, next) => {
     const { code } = req.body;
+    console.log(JSON.stringify(req.body));
     console.log(code);
     live.startLive(code)
         .then((data) => {

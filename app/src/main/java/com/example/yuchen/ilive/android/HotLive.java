@@ -66,6 +66,9 @@ public class HotLive extends Fragment {
                         try {
                             if ((int)response.get("ret") == 0) {
                                 JSONArray jsonArray = response.getJSONArray("results");
+                                if(jsonArray.length() == 0) {
+                                    view.findViewById(R.id.noneTips).setVisibility(View.VISIBLE);
+                                }
                                 Type listType = new TypeToken<List<HashMap<String, Object>>>() {}.getType();
                                 ArrayList<HashMap<String, Object>> hotLiveList = new Gson().fromJson(jsonArray.toString(), listType);
 

@@ -56,7 +56,7 @@ public class HotLiveList extends BaseAdapter  {
         imageView.setImageResource(R.drawable.avatar);
         titleView.setText((String)hash.get("nickname"));
         Double d = new Double((double)hash.get("audience"));
-        contentView.setText( d.intValue() + "人");
+        contentView.setText( d.intValue() + "人正在观看");
 
         DefineView.setOnClickListener(this.listener);
         DefineView.setTag(position);

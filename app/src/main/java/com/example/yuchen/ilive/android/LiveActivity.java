@@ -95,8 +95,6 @@ public class LiveActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         liveAudioRecord = new LiveAudioRecord();
 
-        Log.i("main", init(new Emp()) + "---" + ini());
-
         renderTexToSurface = new RenderTexToSurface(videoEncoder);
 
         liveGLSurfaceView = (android.opengl.GLSurfaceView)findViewById(R.id.liveGLSurfaceView);
