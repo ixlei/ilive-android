@@ -110,7 +110,6 @@ public class HotLive extends Fragment {
             String codeStr = item.get("code").toString();
             String code = new BigDecimal(codeStr).toString();
             Intent intent = new Intent(getActivity(), LivePlayerActivity.class);
-            code = "test1";
             intent.putExtra(Config.livePlayerIntentExtraKey, code);
             startActivity(intent);
         }

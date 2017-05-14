@@ -42,7 +42,9 @@ public class LivePlayerActivity extends Activity {
 
         videoView.setAspectRatio(IRenderView.AR_MATCH_PARENT);
         videoView.setScaleX(1.1F);
-        videoView.setVideoURI(Uri.parse("rtmp://192.168.2.1:1935/ilive/" + code));
+        String url = "rtmp://192.168.2.1:1935/ilive/" + code + "?code=" + code;
+        Log.i("url ", url);
+        videoView.setVideoURI(Uri.parse(url));
         videoView.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(IMediaPlayer mp) {

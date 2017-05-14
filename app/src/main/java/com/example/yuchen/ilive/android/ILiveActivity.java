@@ -176,7 +176,7 @@ public class ILiveActivity  extends Activity{
                         Toast.makeText(ILiveActivity.this, "重新登陆", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    String uploadUrl = "rtmp://192.168.2.1:1935/ilive/" + code;
+                    String uploadUrl = "rtmp://192.168.2.1:1935/ilive/" + code + "?code=" + code;
                     mRtmpSender.setAddress(uploadUrl);
                     mProgressConnecting.setVisibility(View.VISIBLE);
                     Toast.makeText(ILiveActivity.this, "start connecting", Toast.LENGTH_SHORT).show();

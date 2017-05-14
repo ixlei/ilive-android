@@ -27,7 +27,6 @@ module.exports = {
                     'select * from liveroom where state = 1 and code = ' +
                     (connection.escape(code)) +
                     ')';
-                console.log(sql);
                 connection.query(sql, (err, results, fields) => {
                     if (err) {
                         reject({
@@ -94,7 +93,6 @@ module.exports = {
                     'set state = 0, end_date = ' + "'" +
                     getMysqlTimestampFormat(new Date()) +
                     "' where state = 1";
-                console.log(sql);
                 connection.query(sql, (err, results, fields) => {
                     if (err) {
                         reject({ ret: 1, results: err });
