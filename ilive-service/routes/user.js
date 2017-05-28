@@ -86,6 +86,12 @@ Router.post("/register", (req, res, next) => {
         });
 });
 
+Router.get('/userinfo', (req, res, next) => {
+    res.render('user', {
+        nickname: 'test'
+    });
+});
+
 function runTask(cb) {
     return new Promise((resolve, reject) => {
         const task = cb();

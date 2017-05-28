@@ -37,7 +37,7 @@ public class TabLayout extends AutoLinearLayout implements View.OnClickListener 
     @Override
     public void onClick(View v) {
         int index = (int)v.getTag();
-        if(index != 2) {
+        if(index != 1) {
             setCurrentActView((int)v.getTag());
         }
         listener.onTabClick(classList.get((int)v.getTag()), (int)v.getTag());

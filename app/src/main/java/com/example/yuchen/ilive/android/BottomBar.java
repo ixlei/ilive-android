@@ -79,10 +79,6 @@ public class BottomBar extends LinearLayout implements View.OnClickListener{
 
         renderView();
 
-        //Log.i("dd", icon.toString());
-        //Log.i("dd", icon.toString());
-
-
         typedArr.recycle();
 
 

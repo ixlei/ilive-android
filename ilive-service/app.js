@@ -2,12 +2,18 @@
 
 const express = require('express');
 const app = express();
+const ejs = require('ejs');
+const path = require('path');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const session = require('express-session')
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
 
 const userRouter = require('./routes/user.js');
 const live = require('./routes/live.js');

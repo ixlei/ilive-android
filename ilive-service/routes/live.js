@@ -37,6 +37,7 @@ Router.post('/publish', (req, res, next) => {
 
 Router.post('/play', (req, res, next) => {
     const { code } = req.body;
+    console.log(JSON.stringify(req.body));
     live.updateNum(0, code)
         .then((data) => {
             if (data && data.ret == 0) {

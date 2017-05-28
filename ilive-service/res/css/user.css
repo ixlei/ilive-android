@@ -1,0 +1,26 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+.info {
+    padding: 20px 0;
+    background: #0296DC;
+}
+
+.info .avatar {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+}
+
+.info .avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+
+.info .nickname {
+    color: white;
+    text-align: center;
+}

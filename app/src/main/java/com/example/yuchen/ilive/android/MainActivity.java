@@ -35,9 +35,9 @@ public class MainActivity extends AppCompatActivity implements TabLayout.onTabCl
         tabLayout = (TabLayout)findViewById(R.id.tabLayout);
         ArrayList<Class<?>> fragments = new ArrayList<>();
         fragments.add(HotLive.class);
-        fragments.add(Following.class);
+        //fragments.add(Following.class);
         fragments.add(LiveActivity.class);
-        fragments.add(HotList.class);
+        //fragments.add(HotList.class);
         fragments.add(User.class);
         tabLayout.initData(fragments, this);
         replaceFragment(HotLive.class, 0);

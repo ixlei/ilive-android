@@ -29,7 +29,6 @@ public class LivePlayerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.hot_live_player);
         code = getIntent().getStringExtra(Config.livePlayerIntentExtraKey);
-        Log.i("code", code);
 
         final IjkVideoView videoView = (IjkVideoView) findViewById(R.id.video_view);
         IjkMediaPlayer.loadLibrariesOnce(null);
