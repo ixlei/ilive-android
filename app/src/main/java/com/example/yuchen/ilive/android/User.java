@@ -29,7 +29,7 @@ public class User extends Fragment {
             //webView.setWebViewClient(new WebViewClient());
             webView.getSettings().setJavaScriptEnabled(true);
             Log.i("webview", "view");
-            webView.loadUrl("http://192.168.2.1/user/userinfo");
+            webView.loadUrl("http://" + Config.ipAddr + "/user/userinfo");
         } else {
             //webView.setVisibility(View.INVISIBLE);
         }

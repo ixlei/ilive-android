@@ -57,7 +57,7 @@ public class HotLive extends Fragment {
         mCustomerApplication = (CustomerApplication)getActivity().getApplication();
         RequestQueue queue = mCustomerApplication.getRequestQueue();
 
-        String url = "http://127.0.0.1:8001/live/hotlive/0";
+        String url = "http://" + Config.ipAddr + "/live/hotlive/0";
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {

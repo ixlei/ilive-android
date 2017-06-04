@@ -13,6 +13,8 @@ public class Config {
 
     public static final String appConstant = "ilive";
 
+    public static final String ipAddr = "123.56.236.43";
+
     public static final String livePlayerIntentExtraKey = "COM_EXAMPLE_YUCHEN_ILIVE_ANDROID_HOTLIVE_LIVE_PLAYER";
 
 }

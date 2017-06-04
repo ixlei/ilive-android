@@ -176,7 +176,7 @@ public class ILiveActivity  extends Activity{
                         Toast.makeText(ILiveActivity.this, "重新登陆", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    String uploadUrl = "rtmp://192.168.2.1:1935/ilive/" + code + "?code=" + code;
+                    String uploadUrl = "rtmp://" + Config.ipAddr + ":1935/ilive/" + code + "?code=" + code;
                     mRtmpSender.setAddress(uploadUrl);
                     mProgressConnecting.setVisibility(View.VISIBLE);
                     Toast.makeText(ILiveActivity.this, "start connecting", Toast.LENGTH_SHORT).show();
@@ -298,7 +298,7 @@ public class ILiveActivity  extends Activity{
                         return;
                     }
 
-                    String url = "http://192.168.2.1:8001/user/login";
+                    String url = "http://" + Config.ipAddr + "/user/login";
                     JSONObject params = new JSONObject();
                     try {
                         params.put("nickname", username);
