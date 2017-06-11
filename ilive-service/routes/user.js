@@ -88,7 +88,7 @@ Router.post("/register", (req, res, next) => {
 
 Router.get('/userinfo', (req, res, next) => {
     res.render('user', {
-        nickname: 'test'
+        nickname: '永远的天空'
     });
 });
 

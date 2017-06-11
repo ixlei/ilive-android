@@ -22,13 +22,13 @@ public class MainActivity extends AppCompatActivity implements TabLayout.onTabCl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         renderView();
-        setActionBar();
+        setActionBar(R.layout.hot_live_actionbar);
     }
 
-    public void setActionBar() {
+    public void setActionBar(int resId) {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        actionBar.setCustomView(R.layout.hot_live_actionbar);
+        actionBar.setCustomView(resId);
     }
 
     public void renderView() {
@@ -52,6 +52,16 @@ public class MainActivity extends AppCompatActivity implements TabLayout.onTabCl
             startActivity(liveIntent);
             return;
         }
+
+        if(index == 0) {
+            setActionBar(R.layout.hot_live_actionbar);
+        }
+
+        if(index == 2) {
+            setActionBar(R.layout.hot_user_action_bar);
+        }
+
+
         try {
             Log.i("fragment", cls.getName());
             Fragment fragment =  (Fragment)cls.newInstance();
